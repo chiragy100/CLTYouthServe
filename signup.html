@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Join Now | CLT YouthServe</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="css/style.css" />
+    
+    <link rel="stylesheet" href="css/auth.css" />
+</head>
+  <body class="auth-page"> 
+    <nav class="navbar">
+      <div class="logo">
+        <a href="index.html">
+          <img src="images/CLT Logo.png" alt="Logo" class="web-logo" />CLT<span>YouthServe</span>
+        </a>
+      </div>
+      <div class="nav-links">
+        <a href="about.html">About</a>
+        <a href="opportunities.html">Opportunities</a>
+        <div class="nav-auth">
+          <a href="login.html" class="login">Sign In</a>
+          <a href="signup.html" class="btn-nav">Join Now</a>
+        </div>
+      </div>
+    </nav>
+
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="auth-header">
+          <h2>Create Account</h2>
+          <p>Join the movement serving Charlotte.</p>
+        </div>
+
+        <form id="signup-form" class="auth-form">
+          <div class="form-group">
+            <label for="fullname">Full Name</label>
+            <input type="text" id="fullname" placeholder="Jane Doe" required />
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="name@example.com" required />
+          </div>
+
+          <div class="form-group">
+            <label for="dob">Date of Birth</label>
+            <input type="date" id="dob" required />
+            <p class="form-helper">Used to verify age eligibility.</p>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="••••••••" required />
+          </div>
+
+          <div class="form-group">
+            <label for="confirm-password">Confirm Password</label>
+            <input type="password" id="confirm-password" placeholder="••••••••" required />
+          </div>
+
+          <button id="submit-btn" type="submit" class="btn-solid btn-full">Create Account</button>
+        </form>
+
+        <div class="auth-footer">
+          <p>Already have an account? <a href="login.html">Sign In</a></p>
+        </div>
+      </div>
+    </div>
+
+    <script type="module" src="js/register.js"></script>
+  </body>
+</html>

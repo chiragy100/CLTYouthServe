@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard | CLT YouthServe</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+    
+    <link rel="stylesheet" href="css/style.css" />
+    
+    <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+  <body>
+    <nav class="navbar">
+      <div class="logo">
+        <a href="index.html">
+             <img src="images/CLT Logo.png" alt="Logo" class="web-logo" />CLT<span>YouthServe</span>
+        </a>
+      </div>
+      <div class="nav-links">
+        <a href="opportunities.html">Opportunities</a>
+        <div class="nav-auth">
+            <button id="logout-btn" class="btn-nav" style="border: none; cursor: pointer;">Sign Out</button>
+        </div>
+      </div>
+    </nav>
+
+    <div id="verify-warning" class="warning-banner" style="display: none;">
+        ⚠️ <strong>Action Required:</strong> Your email address is not verified. Please check your inbox.
+        <button id="resend-btn" class="btn-resend">Resend Verification Link</button>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="welcome-card">
+            <h1>Welcome Back!</h1>
+            <p style="margin-top: 10px; color: #666;">
+                You are currently logged in as: 
+                <span id="user-email" style="color: var(--emerald); font-weight: 700;">Loading...</span>
+            </p>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>My Hours</h3>
+                <p id="service-hours-display">Loading...</p>
+            </div>
+            <div class="feature-card">
+                <h3>Upcoming Shifts</h3>
+                <p>No shifts scheduled</p>
+            </div>
+            <div class="feature-card">
+                <h3>Profile Status</h3>
+                <p>Active</p>
+            </div>  
+        </div>
+    </div>
+
+    <script type="module" src="js/dashboard.js"></script>
+  </body>
+</html>

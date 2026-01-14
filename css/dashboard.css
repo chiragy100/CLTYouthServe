@@ -1,0 +1,59 @@
+/* Warning Banner */
+.warning-banner {
+    background-color: #fff3cd;
+    color: #856404;
+    padding: 15px;
+    text-align: center;
+    border-bottom: 1px solid #ffeeba;
+}
+
+.btn-resend {
+    background: transparent;
+    border: 1px solid #856404;
+    color: #856404;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+.btn-resend:hover { background: rgba(133, 100, 4, 0.1); }
+
+/* Layout */
+.dashboard-container {
+    max-width: 1200px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+/* Welcome Card */
+.welcome-card {
+    background: var(--white);
+    padding: 40px;
+    border-radius: 15px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    margin-bottom: 30px;
+    border-left: 5px solid var(--emerald);
+}
+.welcome-card h1 { font-size: 2.5rem; color: var(--forest); }
+
+/* Feature Grid */
+.feature-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+}
+
+.feature-card {
+    background: var(--white);
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+    transition: transform 0.2s ease;
+}
+.feature-card:hover { transform: translateY(-5px); }
+
+.feature-card h3 { font-size: 1.2rem; color: var(--emerald); margin-bottom: 10px; }
+.feature-card p { color: #666; font-size: 1.1rem; font-weight: 600; }

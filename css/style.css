@@ -1,0 +1,95 @@
+/* =========================================
+   1. GLOBAL VARIABLES & RESET
+   ========================================= */
+:root {
+    --forest: #1b4332;
+    --emerald: #2d6a4f;
+    --mint: #d8f3dc;    
+    --sage: #95d5b2;
+    --white: #ffffff;
+    --off-white: #eaf7f0;
+    --dark: #081c15;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+    font-family: 'Open Sans', sans-serif;
+    background-color: var(--off-white);
+    color: var(--dark);
+    line-height: 1.6;
+}
+
+h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
+
+/* =========================================
+   2. NAVBAR (Used on all pages)
+   ========================================= */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 8%;
+    background: var(--white);
+    border-bottom: 1px solid #eee;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+}
+
+.logo { font-size: 1.4rem; font-weight: 800; color: var(--forest); }
+.logo a { text-decoration: none; color: var(--forest); display: flex; align-items: center; }
+.logo span { color: var(--emerald); }
+
+.web-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+    margin-right: 10px;
+}
+
+.nav-links { display: flex; align-items: center; gap: 2.5rem; }
+.nav-links a { text-decoration: none; color: var(--forest); font-weight: 600; font-size: 0.95rem; }
+
+.nav-auth {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    border-left: 2px solid #eee;
+    padding-left: 1.5rem;
+}
+
+/* =========================================
+   3. GLOBAL BUTTONS
+   ========================================= */
+.btn-nav {
+    background: var(--forest);
+    color: white !important;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background 0.3s ease;
+}
+.btn-nav:hover { background: var(--emerald); }
+
+.btn-solid {
+    background: var(--forest);
+    color: white;
+    border: none;
+    padding: 16px 32px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Montserrat';
+}
+
+.btn-outline {
+    background: transparent;
+    border: 2px solid var(--forest);
+    color: var(--forest);
+    padding: 16px 32px;
+    font-weight: 700;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Montserrat';
+}

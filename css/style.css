@@ -35,10 +35,25 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     position: sticky;
     top: 0;
     z-index: 1000;
+    animation: fadeInOnly 1.5s ease;
 }
 
 .logo { font-size: 1.4rem; font-weight: 800; color: var(--forest); }
-.logo a { text-decoration: none; color: var(--forest); display: flex; align-items: center; }
+
+.logo a { 
+    text-decoration: none; 
+    color: var(--forest); 
+    display: flex; 
+    align-items: center;
+    transition: transform 0.3s ease;  
+}
+
+.logo:hover a{
+    transform: scale(1.1); 
+}
+
+
+
 .logo span { color: var(--emerald); }
 
 .web-logo {
@@ -48,8 +63,25 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     margin-right: 10px;
 }
 
-.nav-links { display: flex; align-items: center; gap: 2.5rem; }
-.nav-links a { text-decoration: none; color: var(--forest); font-weight: 600; font-size: 0.95rem; }
+
+.nav-links { 
+    display: flex; 
+    align-items: center; 
+    gap: 2.5rem;
+}
+
+/* Applies a smooth color transition to all standard links in the navbar */
+.nav-links a { 
+    text-decoration: none; 
+    color: var(--forest); 
+    font-weight: 600; 
+    font-size: 0.95rem; 
+    transition: color 0.3s ease;
+}
+
+.nav-links a:hover {
+    color: var(--emerald); /* Keeps it visible and on-brand */
+}
 
 .nav-auth {
     display: flex;
@@ -68,9 +100,13 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     padding: 10px 20px;
     border-radius: 6px;
     font-weight: 600;
-    transition: background 0.3s ease;
+    transition: background 0.3s ease, transform 0.3s ease;
 }
-.btn-nav:hover { background: var(--emerald); }
+
+.btn-nav:hover { 
+    background: var(--emerald);
+    transform: translateY(-2px);
+}
 
 .btn-solid {
     background: var(--forest);
@@ -81,6 +117,13 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     border-radius: 8px;
     cursor: pointer;
     font-family: 'Montserrat';
+    transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.btn-solid:hover {
+    background: var(--emerald);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(27, 67, 50, 0.2); /* Adds a soft shadow drop */
 }
 
 .btn-outline {
@@ -92,4 +135,18 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     border-radius: 8px;
     cursor: pointer;
     font-family: 'Montserrat';
+    transition: all 0.3s ease;
+}
+
+.btn-outline:hover {
+    background: var(--forest);
+    color: var(--white);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(27, 67, 50, 0.2);
+}
+
+
+@keyframes fadeInOnly {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

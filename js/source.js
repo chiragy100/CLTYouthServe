@@ -1,4 +1,4 @@
-// Add a subtle scroll effect to the navbar
+// Add a subtle scroll effect to the navbar, more than 50px down it makes it smaller with a shadow
 window.addEventListener('scroll', () => {
     const nav = document.querySelector('.navbar');
     if (window.scrollY > 50) {
@@ -11,17 +11,16 @@ window.addEventListener('scroll', () => {
 });
 
 
-// Inside js/source.js
 
+// Initialize Leaflet map centered on Charlotte, NC used in the oppertunities page
 const Charlotte = [35.2271, -80.8433];
-
-// Create map
 const map = L.map('interactive-map', {
     center: Charlotte,
     zoom: 10, // Zoomed out slightly to see Matthews
     zoomControl: true
 });
 
+//loads street map images from MapTiler and display them to my Leaflet map
 L.tileLayer('https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}.png?key=algTQ7Nhcq5z8k3FE0BE', {
     attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'  
 }).addTo(map);

@@ -1,27 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Find Opportunities | CLT YouthServe</title>
-    
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
-    
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
-    
-    <link rel="stylesheet" href="css/style.css" />
-    
-    <link rel="stylesheet" href="css/opportunities.css" />
-    
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-</head>
+
+    <link
+      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Open+Sans:wght@400;600&display=swap"
+      rel="stylesheet"
+    >
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin=""
+    >
+
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/opportunities.css">
+
+    <script
+      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+      crossorigin=""
+    ></script>
+  </head>
   <body class="opps-page">
     <nav class="navbar">
       <div class="logo">
         <a href="index.html">
-          <img src="images/CLT Logo.png" alt="Logo" class="web-logo" />CLT<span
-            >YouthServe</span
-          >
+          <img src="images/CLT Logo.png" alt="Logo" class="web-logo">CLT<span>YouthServe</span>
         </a>
       </div>
       <div class="nav-links">
@@ -35,12 +44,12 @@
     </nav>
 
     <div class="search-filter-bar">
-      <div class="filter-container">
+      <form class="filter-container">
         <input
           type="text"
           placeholder="Search causes (e.g. Tutoring, Environment)"
           class="search-input"
-        />
+        >
         <select class="filter-select">
           <option value="">Category</option>
           <option value="education">Education</option>
@@ -52,47 +61,51 @@
           <option value="middle">Middle School</option>
           <option value="high">High School</option>
         </select>
-      </div>
+      </form>
     </div>
 
     <main class="opps-layout">
-    <section class="listings-container">
+      <section class="listings-container">
         <div class="results-header">
-            <h2>Volunteer Opportunities in <span>Charlotte</span></h2>
-            <p>Showing 1 opportunity</p> </div>
+          <h2>Volunteer Opportunities in <span>Charlotte</span></h2>
+          <p>Showing 1 opportunity</p>
+        </div>
 
         <div class="listings-grid">
-            
-            <div class="opp-card">
-                <div 
-                  class="opp-img" 
-                  style="background-image: url('https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80&w=400');"
-                >
-                  <span class="category-tag" style="background: #d9534f;">Closed</span>
-                </div>
-                
-                <div class="opp-content">
-                  <h3>Matthews Help Center</h3>
-                  <p class="org-name">Community Help & Thrift</p>
-                  
-                  <div class="opp-details">
-                    <span>📍 Matthews, NC</span>
-                    <span>⏱️ 3 Hour Shifts</span>
-                  </div>
-              
-                  <a href="https://matthewshelpcenter.org/" target="_blank" style="text-decoration: none;">
-                    <button class="btn-card" style="border-color: #999; color: #999; cursor: not-allowed;">Currently Full</button>
-                  </a>
-                </div>
+          <div class="opp-card">
+            <div
+              class="opp-img"
+              style="background-image: url('https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80&w=400');"
+            >
+              <span class="category-tag" style="background: #d9534f">Closed</span>
+            </div>
+
+            <div class="opp-content">
+              <h3>Matthews Help Center</h3>
+              <p class="org-name">Community Help & Thrift</p>
+
+              <div class="opp-details">
+                <span>📍 Matthews, NC</span>
+                <span>⏱️ 3 Hour Shifts</span>
               </div>
 
-              </div>
-    </section>
+              <a
+                href="https://matthewshelpcenter.org/"
+                target="_blank"
+                class="btn-card"
+                style="text-decoration: none; border-color: #999; color: #999; cursor: not-allowed; display: inline-block; text-align: center; box-sizing: border-box;"
+              >
+                Currently Full
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
 
-    <section class="map-view">
+      <section class="map-view">
         <div id="interactive-map"></div>
-    </section>
-</main>
+      </section>
+    </main>
 
     <script src="js/source.js"></script>
   </body>

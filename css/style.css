@@ -118,6 +118,7 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     cursor: pointer;
     font-family: 'Montserrat';
     transition: background 0.3s ease, transform 0.3s ease, box-shadow 0.3s ease;
+    text-decoration: none; 
 }
 
 .btn-solid:hover {
@@ -136,6 +137,7 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     cursor: pointer;
     font-family: 'Montserrat';
     transition: all 0.3s ease;
+    text-decoration: none; 
 }
 
 .btn-outline:hover {

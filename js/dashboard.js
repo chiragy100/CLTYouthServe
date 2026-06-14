@@ -1,6 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-// 1. ADD FIRESTORE IMPORTS
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 const firebaseConfig = {
@@ -15,68 +14,76 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app); // 2. INITIALIZE DB
+const db = getFirestore(app);
 
-// 3. Check Login Status & Fetch Data
 onAuthStateChanged(auth, (user) => {
     if (user) {
-        // --- User is logged in ---
-        console.log("Auth User ID:", user.uid);
-
-        // A. Handle Verification Warning
+        // --- Handle Email Verification Warning ---
         const warningBanner = document.getElementById("verify-warning");
         if (!user.emailVerified) {
             if(warningBanner) warningBanner.style.display = "block";
-            
             const resendBtn = document.getElementById("resend-btn");
             if(resendBtn) {
                 resendBtn.addEventListener("click", () => {
                     sendEmailVerification(user)
-                    .then(() => alert("Verification email resent!"))
+                    .then(() => alert("Verification email resent! Check your inbox/spam."))
                     .catch((error) => console.error(error));
                 });
             }
         } else {
             if(warningBanner) warningBanner.style.display = "none";
         }
-
-        // B. FETCH USER DATA FROM FIRESTORE
-        const docRef = doc(db, "users", user.uid); // Target the document with the User's ID
+        
+       // --- Fetch User Data from Firestore ---
+        const docRef = doc(db, "users", user.uid);
         
         getDoc(docRef).then((docSnap) => {
             if (docSnap.exists()) {
                 const userData = docSnap.data();
-                console.log("Database Data:", userData);
-
-                // Update Name
-                const nameSpan = document.getElementById("user-email"); // We are reusing the existing span
-                if(nameSpan) {
-                    // Display Name (or fallback to email if name is missing)
-                    nameSpan.textContent = userData.fullName || user.email;
+                
+                // 1. Update Names & Greetings
+                const firstName = userData.fullName ? userData.fullName.split(" ")[0] : "Volunteer";
+                document.getElementById("greeting-name").textContent = firstName;
+                document.getElementById("user-name").textContent = userData.fullName || "Not provided";
+                document.getElementById("user-email").textContent = userData.email || user.email;
+                
+                // 2. Format Join Date
+                if (userData.joinedAt) {
+                    const dateObj = new Date(userData.joinedAt);
+                    document.getElementById("join-date").textContent = dateObj.toLocaleDateString(undefined, { year: 'numeric', month: 'long' });
+                } else {
+                    document.getElementById("join-date").textContent = "Recently";
                 }
 
-                // Update Service Hours
-                const hoursDisplay = document.getElementById("service-hours-display");
-                if(hoursDisplay) {
-                    const hours = userData.serviceHours || 0;
-                    hoursDisplay.textContent = `${hours} Service hours logged`;
-                }
+                // 3. Update Role Badge
+                const roleBadge = document.getElementById("user-role");
+                roleBadge.textContent = (userData.role || "Student").toUpperCase();
+
             } else {
-                console.log("No profile found in database!");
-                // Fallback to just showing email
+                console.warn("No profile document found in Firestore for this user!");
+                
+                // UI Fallbacks so it doesn't get stuck on "Loading..."
+                document.getElementById("greeting-name").textContent = "Volunteer";
+                document.getElementById("user-name").textContent = "Profile Missing";
                 document.getElementById("user-email").textContent = user.email;
+                document.getElementById("join-date").textContent = "Unknown";
+                document.getElementById("user-role").textContent = "UNREGISTERED";
             }
         }).catch((error) => {
-            console.error("Error getting document:", error);
+            console.error("Error fetching Firestore document:", error);
+            
+            // UI Fallbacks for network/permission errors
+            document.getElementById("user-name").textContent = "Error loading data";
+            document.getElementById("user-email").textContent = "Error loading data";
+            document.getElementById("join-date").textContent = "Error loading data";
+            document.getElementById("user-role").textContent = "ERROR";
         });
-
     } else {
-        // --- User is NOT logged in ---
-        window.location.href = "signin.html";
+        window.location.href = "login.html"; // Redirect if not logged in
     }
 });
 
-// 4. Handle Logout
+// --- Handle Logout ---
 const logoutBtn = document.getElementById("logout-btn");
 if(logoutBtn) {
     logoutBtn.addEventListener("click", () => {

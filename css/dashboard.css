@@ -1,80 +1,149 @@
+/* =========================================
+   DASHBOARD SPECIFIC STYLES
+   (Inherits variables & fonts from style.css)
+   ========================================= */
+
 /* Warning Banner */
 .warning-banner {
-    background-color: #fff3cd;
+    display: none; /* Controlled by JS */
+    background-color: #fff3cd; /* Standard alert yellow */
     color: #856404;
-    padding: 15px;
+    padding: 12px 20px;
     text-align: center;
     border-bottom: 1px solid #ffeeba;
+    font-size: 0.95rem;
 }
 
 .btn-resend {
     background: transparent;
     border: 1px solid #856404;
     color: #856404;
-    padding: 5px 12px;
+    padding: 4px 10px;
     border-radius: 4px;
     cursor: pointer;
-    margin-left: 15px;
+    margin-left: 10px;
     font-size: 0.8rem;
     font-weight: 600;
-    transition: all 0.2s ease;
+    transition: background 0.2s;
 }
-.btn-resend:hover { background: rgba(133, 100, 4, 0.1); }
+
+.btn-resend:hover {
+    background: rgba(133, 100, 4, 0.1);
+}
 
 /* Layout */
 .dashboard-container {
-    max-width: 1200px;
+    max-width: 1100px;
     margin: 40px auto;
     padding: 0 20px;
+    animation: fadeInOnly 1s ease; /* Using your global animation */
 }
 
-/* Welcome Card */
-.welcome-card {
-    background: var(--white);
-    padding: 40px;
-    border-radius: 15px;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+/* Dashboard Header */
+.dash-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     margin-bottom: 30px;
-    border-left: 5px solid var(--emerald);
+    padding-bottom: 20px;
+    border-bottom: 2px solid rgba(8, 28, 21, 0.1); /* Transparent --dark */
 }
-.welcome-card h1 { font-size: 2.5rem; color: var(--forest); }
 
-/* Feature Grid */
-.feature-grid {
+.dash-header h1 {
+    color: var(--forest);
+    margin-bottom: 5px;
+}
+
+.text-muted {
+    color: rgba(8, 28, 21, 0.6); /* Muted version of your --dark */
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+/* Grid System */
+.dash-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 30px;
+    grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+    gap: 25px;
 }
 
-.feature-card {
+.shifts-card {
+    grid-column: 1 / -1; /* Makes the bottom card span the full width */
+}
+
+/* Dashboard Cards */
+.dash-card {
     background: var(--white);
-    padding: 30px;
-    border-radius: 15px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
-    transition: transform 0.2s ease;
-}
-.feature-card:hover { transform: translateY(-5px); }
-
-.feature-card h3 { font-size: 1.2rem; color: var(--emerald); margin-bottom: 10px; }
-.feature-card p { color: #666; font-size: 1.1rem; font-weight: 600; }
-
-
-#logout-btn {
-  border: none;
-  cursor: pointer;
+    border-radius: 12px;
+    padding: 25px;
+    box-shadow: 0 4px 15px rgba(8, 28, 21, 0.05); /* Shadow using your --dark */
+    border: 1px solid rgba(8, 28, 21, 0.05);
 }
 
-/* Default state to hide the banner until JS overrides it */
-#verify-warning {
-  display: none; 
+.dash-card h3 {
+    color: var(--forest);
+    margin-bottom: 20px;
+    font-size: 1.2rem;
+    border-left: 4px solid var(--emerald);
+    padding-left: 10px;
 }
 
-.user-welcome-text {
-  margin-top: 10px;
-  color: #666;
+/* Profile List */
+.profile-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
-#user-email {
-  color: var(--emerald);
-  font-weight: 700;
+.profile-list li {
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(8, 28, 21, 0.05);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--dark);
+}
+
+.profile-list li:last-child {
+    border-bottom: none;
+}
+
+/* Badges */
+.badge {
+    background-color: var(--off-white);
+    color: var(--forest);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.status-active {
+    background-color: var(--mint);
+    color: var(--forest);
+}
+
+/* Empty States */
+.empty-state {
+    text-align: center;
+    padding: 40px 20px;
+    background-color: var(--off-white);
+    border-radius: 8px;
+    border: 2px dashed var(--sage);
+}
+
+.empty-state p {
+    color: var(--dark);
+    opacity: 0.8;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .dash-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
 }

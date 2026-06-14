@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Dashboard | CLT YouthServe</title>
+    <title>My Dashboard | CLT YouthServe</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
     
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/dashboard.css" />
-</head>
+  </head>
   <body>
     <nav class="navbar">
       <div class="logo">
@@ -27,33 +27,50 @@
 
     <div id="verify-warning" class="warning-banner">
         ⚠️ <strong>Action Required:</strong> Your email address is not verified. Please check your inbox.
-        <button id="resend-btn" class="btn-resend">Resend Verification Link</button>
+        <button id="resend-btn" class="btn-resend">Resend Link</button>
     </div>
 
-    <div class="dashboard-container">
-        <div class="welcome-card">
-            <h1>Welcome Back!</h1>
-            <p class="user-welcome-text">
-                You are currently logged in as: 
-                <span id="user-email">Loading...</span>
-            </p>
-        </div>
-
-        <div class="feature-grid">
-            <div class="feature-card">
-                <h3>My Hours</h3>
-                <p id="service-hours-display">Loading...</p>
+    <main class="dashboard-container">
+        <header class="dash-header">
+            <div class="header-text">
+                <h1>Welcome, <span id="greeting-name">Volunteer</span>!</h1>
+                <p class="text-muted">Member since: <span id="join-date">Loading...</span></p>
             </div>
-            <div class="feature-card">
+            
+            <a href="opportunities.html" class="btn-solid">Find an Opportunity</a>
+            
+        </header>
+
+        <div class="dash-grid">
+            
+            <div class="dash-card profile-card">
+                <h3>Profile Info</h3>
+                <ul class="profile-list">
+                    <li><strong>Full Name:</strong> <span id="user-name">Loading...</span></li>
+                    <li><strong>Email:</strong> <span id="user-email">Loading...</span></li>
+                    <li><strong>Account Role:</strong> <span id="user-role" class="badge">Loading...</span></li>
+                    <li><strong>Status:</strong> <span id="user-status" class="badge status-active">Active</span></li>
+                </ul>
+            </div>
+
+            <div class="dash-card starred-card">
+                <h3>Starred Opportunities</h3>
+                <div class="empty-state">
+                    <p>You haven't saved any opportunities yet.</p>
+                    <a href="opportunities.html" class="btn-outline">Explore Causes</a>
+                </div>
+            </div>
+
+            <div class="dash-card shifts-card">
                 <h3>Upcoming Shifts</h3>
-                <p>No shifts scheduled</p>
+                <div class="empty-state">
+                    <p>You don't have any scheduled shifts at the moment.</p>
+                    <a href="opportunities.html" class="btn-outline">Browse the Map</a>
+                </div>
             </div>
-            <div class="feature-card">
-                <h3>Profile Status</h3>
-                <p>Active</p>
-            </div>  
+            
         </div>
-    </div>
+    </main>
 
     <script type="module" src="js/dashboard.js"></script>
   </body>

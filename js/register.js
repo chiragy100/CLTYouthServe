@@ -18,23 +18,90 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app); // 2. INITIALIZE DATABASE
 
+// Global Element Selectors
 const submitBtn = document.getElementById("submit-btn");
+const confirmPasswordInput = document.getElementById("confirm-password");
+const passwordInput = document.getElementById("password");
+const emailInput = document.getElementById("email");
+const fullnameInput = document.getElementById("fullname");
+const dobInput = document.getElementById("dob");
+const errorBox = document.getElementById("error-message");
+
+// Helper function to clear individual input red glows when a user fixes them
+const inputs = [emailInput, passwordInput, confirmPasswordInput, fullnameInput, dobInput];
+inputs.forEach(input => {
+    if (input) {
+        input.addEventListener("input", function() {
+            input.classList.remove("invalid-field");
+        });
+    }
+});
 
 if (submitBtn) {
   submitBtn.addEventListener("click", function(event) {
       event.preventDefault(); 
 
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
-      const confirmPassword = document.getElementById("confirm-password").value;
-      const fullname = document.getElementById("fullname").value;
-      const dob = document.getElementById("dob").value; // Get the DOB
+      // Reset UI state at the start of every click submit attempt
+      if (errorBox) errorBox.textContent = "";
+      inputs.forEach(input => {
+          if (input) input.classList.remove("invalid-field");
+      });
 
-      if (password !== confirmPassword) {
-          alert("Passwords do not match!");
+      // Grab current values and trim whitespace
+      const email = emailInput ? emailInput.value.trim() : "";
+      const password = passwordInput ? passwordInput.value : "";
+      const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : "";
+      const fullname = fullnameInput ? fullnameInput.value.trim() : "";
+      const dob = dobInput ? dobInput.value : "";
+
+      // ==========================================
+      // FRONT-END VALIDATION (CATCH ALL EMPTY FIELDS)
+      // ==========================================
+      
+      if (!fullname) {
+          if (errorBox) errorBox.textContent = "Please enter your full name.";
+          if (fullnameInput) fullnameInput.classList.add("invalid-field");
           return;
       }
 
+      if (!email) {
+          if (errorBox) errorBox.textContent = "Please enter your email address.";
+          if (emailInput) emailInput.classList.add("invalid-field");
+          return;
+      }
+
+      // Simple regex check for valid email formatting
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(email)) {
+          if (errorBox) errorBox.textContent = "Please enter a valid email address.";
+          if (emailInput) emailInput.classList.add("invalid-field");
+          return;
+      }
+
+      if (!dob) {
+          if (errorBox) errorBox.textContent = "Please select your date of birth.";
+          if (dobInput) dobInput.classList.add("invalid-field");
+          return;
+      }
+
+      // Front-end local check for password length (Stops execution immediately if under 6)
+      if (password.length < 6) {
+          if (errorBox) errorBox.textContent = "Password must be at least 6 characters long.";
+          if (passwordInput) passwordInput.classList.add("invalid-field");
+          return;
+      }
+
+      // Password Match Validation Check
+      if (password !== confirmPassword) {
+          if (errorBox) errorBox.textContent = "Passwords do not match!";
+          if (confirmPasswordInput) confirmPasswordInput.classList.add("invalid-field");
+          return;
+      }
+
+      // ==========================================
+      // FIREBASE PROCESSING PIPELINE
+      // ==========================================
+      
       // 3. CREATE USER (Auth)
       createUserWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
@@ -42,15 +109,13 @@ if (submitBtn) {
               console.log("User created:", user.uid);
 
               // 4. SAVE EXTRA DETAILS TO DATABASE (Firestore)
-              // We create a document inside a collection called "users"
-              // The document ID will be the User's unique ID (uid)
               const userData = {
                   fullName: fullname,
                   email: email,
                   dateOfBirth: dob,
-                  role: "student", // Good to track if they are a student or admin
+                  role: "student", 
                   joinedAt: new Date().toISOString(),
-                  serviceHours: 0 // Initialize their hours to 0
+                  serviceHours: 0 
               };
 
               // Write to the database
@@ -60,26 +125,39 @@ if (submitBtn) {
                     
                     // 5. SEND VERIFICATION & REDIRECT
                     sendEmailVerification(user).then(() => {
-                        alert("Account created! Verification email sent.");
-                        window.location.href = "dashboard.html";
+                        if (errorBox) {
+                            errorBox.style.color = "var(--emerald)"; 
+                            errorBox.textContent = "Account created! Verification email sent. Redirecting...";
+                        }
+                        setTimeout(() => {
+                            window.location.href = "dashboard.html";
+                        }, 2000);
                     });
                 })
                 .catch((error) => {
                     console.error("Error writing to DB:", error);
-                    alert("Account created, but failed to save profile data.");
+                    if (errorBox) errorBox.textContent = "Account created, but failed to save profile data.";
                 });
 
           })
           .catch((error) => {
               const errorCode = error.code;
-              const errorMessage = error.message;
+              console.error("Firebase Auth Error:", errorCode, error.message);
               
-              if (errorCode === 'auth/email-already-in-use') {
-                  alert("That email is already registered. Please sign in instead.");
-              } else if (errorCode === 'auth/weak-password') {
-                  alert("Password should be at least 6 characters.");
-              } else {
-                  alert("Error: " + errorMessage);
+              if (errorBox) {
+                  // User-friendly custom responses hiding raw system code
+                  if (errorCode === 'auth/email-already-in-use') {
+                      errorBox.textContent = "That email is already registered. Please sign in instead.";
+                      if (emailInput) emailInput.classList.add("invalid-field");
+                  } else if (errorCode === 'auth/invalid-email') {
+                      errorBox.textContent = "The email address is badly formatted.";
+                      if (emailInput) emailInput.classList.add("invalid-field");
+                  } else if (errorCode === 'auth/operation-not-allowed') {
+                      errorBox.textContent = "Email/Password sign-up is currently disabled.";
+                  } else {
+                      // Fallback catch-all error message structure keeping details safe at the end
+                      errorBox.textContent = "An unexpected registration error occurred. Details: " + errorCode;
+                  }
               }
           });
   });

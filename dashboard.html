@@ -8,7 +8,6 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
     
     <link rel="stylesheet" href="css/style.css" />
-    
     <link rel="stylesheet" href="css/dashboard.css" />
 </head>
   <body>
@@ -21,12 +20,12 @@
       <div class="nav-links">
         <a href="opportunities.html">Opportunities</a>
         <div class="nav-auth">
-            <button id="logout-btn" class="btn-nav" style="border: none; cursor: pointer;">Sign Out</button>
+            <button id="logout-btn" class="btn-nav">Sign Out</button>
         </div>
       </div>
     </nav>
 
-    <div id="verify-warning" class="warning-banner" style="display: none;">
+    <div id="verify-warning" class="warning-banner">
         ⚠️ <strong>Action Required:</strong> Your email address is not verified. Please check your inbox.
         <button id="resend-btn" class="btn-resend">Resend Verification Link</button>
     </div>
@@ -34,9 +33,9 @@
     <div class="dashboard-container">
         <div class="welcome-card">
             <h1>Welcome Back!</h1>
-            <p style="margin-top: 10px; color: #666;">
+            <p class="user-welcome-text">
                 You are currently logged in as: 
-                <span id="user-email" style="color: var(--emerald); font-weight: 700;">Loading...</span>
+                <span id="user-email">Loading...</span>
             </p>
         </div>
 

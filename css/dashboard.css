@@ -57,3 +57,24 @@
 
 .feature-card h3 { font-size: 1.2rem; color: var(--emerald); margin-bottom: 10px; }
 .feature-card p { color: #666; font-size: 1.1rem; font-weight: 600; }
+
+
+#logout-btn {
+  border: none;
+  cursor: pointer;
+}
+
+/* Default state to hide the banner until JS overrides it */
+#verify-warning {
+  display: none; 
+}
+
+.user-welcome-text {
+  margin-top: 10px;
+  color: #666;
+}
+
+#user-email {
+  color: var(--emerald);
+  font-weight: 700;
+}

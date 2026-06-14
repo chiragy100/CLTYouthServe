@@ -130,8 +130,59 @@ body.opps-page {
     z-index: 1;
 }
 
+/* Card Image Setup */
+.matthews-help-img {
+  background-image: url('https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&q=80&w=400');
+}
+
+/* Status Tags */
+.status-closed {
+  background-color: #d9534f;
+}
+
+/* Disabled State for Full/Closed Opportunities */
+.btn-disabled {
+  text-decoration: none;
+  border-color: #999;
+  color: #999;
+  cursor: not-allowed;
+  display: inline-block;
+  text-align: center;
+  box-sizing: border-box;
+}
+
+/* Leaflet Map Popup Styling */
+.map-popup-card {
+  min-width: 200px;
+}
+
+.map-popup-card .popup-title {
+  margin: 0 0 5px 0;
+  color: #1b4332;
+}
+
+.map-popup-card .popup-text {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.map-popup-card .popup-divider {
+  border: 0;
+  border-top: 1px solid #eee;
+  margin: 8px 0;
+}
+
+.map-popup-card .popup-link {
+  color: #2d6a4f;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+
 /* Responsive: Stack on mobile */
 @media (max-width: 900px) {
     .opps-layout { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
     .listings-container { border-right: none; border-bottom: 1px solid #ddd; }
 }
+
+

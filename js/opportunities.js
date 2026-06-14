@@ -1,4 +1,4 @@
-// Initialize Leaflet map centered on Charlotte, NC used in the oppertunities page
+// Initialize Leaflet map centered on Charlotte, NC used in the opportunities page
 const Charlotte = [35.2271, -80.8433];
 const map = L.map('interactive-map', {
     center: Charlotte,
@@ -6,7 +6,7 @@ const map = L.map('interactive-map', {
     zoomControl: true
 });
 
-//loads street map images from MapTiler and display them to my Leaflet map
+// Loads street map images from MapTiler and display them to my Leaflet map
 L.tileLayer('https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}.png?key=algTQ7Nhcq5z8k3FE0BE', {
     attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'  
 }).addTo(map);
@@ -18,22 +18,20 @@ L.marker(Charlotte).addTo(map).bindPopup('Charlotte, NC');
 const matthewsHelpCenter = L.marker([35.1199, -80.7208]).addTo(map);
 
 matthewsHelpCenter.bindPopup(`
-  <div style="min-width: 200px;">
-    <h3 style="margin: 0 0 5px 0; color: #1b4332;">Matthews Help Center</h3>
-    <p style="margin: 5px 0; font-size: 0.9rem;"><strong>Status:</strong> Opportunities Closed</p>
-    <p style="margin: 5px 0; font-size: 0.9rem;">119 N Ames St, Matthews, NC</p>
-    <hr style="border: 0; border-top: 1px solid #eee; margin: 8px 0;">
-    <p style="margin: 5px 0; font-size: 0.85rem;"><strong>Contact:</strong> Melinda</p>
-    <a href="mailto:melinda@matthewshelpcenter.org" style="color: #2d6a4f; text-decoration: none; font-weight: bold;">Email Coordinator</a>
+  <div class="map-popup-card">
+    <h3 class="popup-title">Matthews Help Center</h3>
+    <p class="popup-text"><strong>Status:</strong> Opportunities Closed</p>
+    <p class="popup-text">119 N Ames St, Matthews, NC</p>
+    <hr class="popup-divider">
+    <p class="popup-text"><strong>Contact:</strong> Melinda</p>
+    <a href="mailto:melinda@matthewshelpcenter.org" class="popup-link">Email Coordinator</a>
   </div>
 `);
 
 // Prevent map rendering bugs
 setTimeout(() => {
-  map.invalidateSize();
+    map.invalidateSize();
 }, 200);
-
-// ... (Your existing map code stays above this) ...
 
 // 3. GET USER'S CURRENT LOCATION
 if ("geolocation" in navigator) {
@@ -55,9 +53,6 @@ if ("geolocation" in navigator) {
 
             // Add a popup saying "You are here"
             userMarker.bindPopup("<strong>You are here</strong>").openPopup();
-
-            // Optional: Center the map on the user
-            // map.setView([userLat, userLng], 12); 
         },
         (error) => {
             // Error handling (User denied permission, etc.)

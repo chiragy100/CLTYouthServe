@@ -79,3 +79,19 @@
 
 .auth-footer a { color: var(--emerald); font-weight: 700; text-decoration: none; }
 .auth-footer a:hover { text-decoration: underline; }
+
+
+.nav-auth .login {
+  font-weight: 600;
+}
+
+.forgot-password-container {
+  text-align: right;
+  margin-bottom: 15px;
+}
+
+.forgot-password-container a {
+  font-size: 0.85rem;
+  color: #666;
+  text-decoration: none;
+}

@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCO-AmNN7QO_9wbqNq9nR1e_XYBdlRSLVg",
@@ -20,6 +20,8 @@ const loginBtn = document.getElementById("login-btn");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
 const errorBox = document.getElementById("error-message");
+const passwordGroup = document.getElementById("password-group");
+const forgotPasswordLink = document.getElementById("forgot-password-link");
 
 // Helper function to clear individual input red glows when a user fixes them
 const inputs = [emailInput, passwordInput];
@@ -31,31 +33,62 @@ inputs.forEach(input => {
     }
 });
 
+// State tracker to know if we are logging in or resetting a password
+let isResetMode = false;
+
+// ==========================================
+// UI TOGGLE LOGIC
+// ==========================================
+if (forgotPasswordLink) {
+    forgotPasswordLink.addEventListener("click", function(event) {
+        event.preventDefault(); // Stop the link from jumping the page
+        
+        isResetMode = !isResetMode; // Toggle the state
+
+        // Clear any lingering errors/red outlines
+        if (errorBox) { errorBox.textContent = ""; errorBox.style.color = ""; }
+        inputs.forEach(input => { if (input) input.classList.remove("invalid-field"); });
+
+        if (isResetMode) {
+            // Morph into Forgot Password UI
+            passwordGroup.style.display = "none";
+            loginBtn.textContent = "Send Reset Link";
+            forgotPasswordLink.textContent = "Back to Sign In";
+            if (passwordInput) passwordInput.removeAttribute("required");
+        } else {
+            // Revert to Sign In UI
+            passwordGroup.style.display = "block"; 
+            loginBtn.textContent = "Sign In";
+            forgotPasswordLink.textContent = "Forgot Password?";
+            if (passwordInput) passwordInput.setAttribute("required", "true");
+        }
+    });
+}
+
+// ==========================================
+// FORM SUBMISSION PIPELINE
+// ==========================================
 if (loginBtn) {
     loginBtn.addEventListener("click", function(event) {
         event.preventDefault(); // Stop page reload
 
-        // Reset UI state at the start of every click submit attempt
-        if (errorBox) errorBox.textContent = "";
+        // 1. Reset UI state at the start of every click submit attempt
+        if (errorBox) { errorBox.textContent = ""; errorBox.style.color = ""; }
         inputs.forEach(input => {
             if (input) input.classList.remove("invalid-field");
         });
 
-        // Grab current values and trim whitespace from email
+        // 2. Grab current values
         const email = emailInput ? emailInput.value.trim() : "";
         const password = passwordInput ? passwordInput.value : "";
 
-        // ==========================================
-        // FRONT-END VALIDATION (CATCH ALL EMPTY FIELDS)
-        // ==========================================
-        
+        // 3. Email Validation (Required for BOTH Login and Reset modes)
         if (!email) {
             if (errorBox) errorBox.textContent = "Please enter your email address.";
             if (emailInput) emailInput.classList.add("invalid-field");
             return;
         }
 
-        // Simple regex check for valid email formatting
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             if (errorBox) errorBox.textContent = "Please enter a valid email address.";
@@ -63,19 +96,46 @@ if (loginBtn) {
             return;
         }
 
+        // ==========================================
+        // FORGOT PASSWORD PIPELINE
+        // ==========================================
+        if (isResetMode) {
+            sendPasswordResetEmail(auth, email)
+                .then(() => {
+                    if (errorBox) {
+                        errorBox.style.color = "var(--emerald)"; // Ensure this matches your CSS
+                        errorBox.textContent = "Reset link sent! Please check your inbox.";
+                    }
+                })
+                .catch((error) => {
+                    const errorCode = error.code;
+                    console.error("Reset Error:", errorCode);
+                    if (errorBox) {
+                        if (errorCode === 'auth/user-not-found') {
+                            errorBox.textContent = "No account found with that email address.";
+                        } else {
+                            errorBox.textContent = "An error occurred. Please try again later.";
+                        }
+                    }
+                });
+            
+            return; // EXIT here so it doesn't try to log in!
+        }
+
+        // ==========================================
+        // LOGIN PIPELINE
+        // ==========================================
+        
+        // 4. Password validation (Only needed if logging in)
         if (!password) {
             if (errorBox) errorBox.textContent = "Please enter your password.";
             if (passwordInput) passwordInput.classList.add("invalid-field");
             return;
         }
 
-        // ==========================================
-        // FIREBASE PROCESSING PIPELINE
-        // ==========================================
-        
+        // 5. Fire Login Request
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
-                // Signed in successfully
                 const user = userCredential.user;
                 console.log("Logged in:", user.email);
                 
@@ -94,7 +154,6 @@ if (loginBtn) {
                 console.error("Login Error:", errorCode);
 
                 if (errorBox) {
-                    // User-friendly custom responses hiding raw system code
                     if (errorCode === 'auth/invalid-credential' || errorCode === 'auth/user-not-found' || errorCode === 'auth/wrong-password') {
                         errorBox.textContent = "Incorrect email or password. Please try again.";
                         if (emailInput) emailInput.classList.add("invalid-field");
@@ -105,7 +164,6 @@ if (loginBtn) {
                         errorBox.textContent = "The email address is badly formatted.";
                         if (emailInput) emailInput.classList.add("invalid-field");
                     } else {
-                        // Fallback catch-all error message structure keeping details safe at the end
                         errorBox.textContent = "An unexpected login error occurred. Details: " + errorCode;
                     }
                 }

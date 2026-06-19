@@ -4,19 +4,8 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Find Opportunities | CLT YouthServe</title>
-
-    <link
-      href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Open+Sans:wght@400;600&display=swap"
-      rel="stylesheet"
-    />
-
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
-
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/opportunities.css" />
   </head>
@@ -24,9 +13,7 @@
     <nav class="navbar">
       <div class="logo">
         <a href="index.html">
-          <img src="images/CLT Logo.png" alt="Logo" class="web-logo" />CLT<span
-            >YouthServe</span
-          >
+          <img src="images/CLT Logo.png" alt="Logo" class="web-logo" />CLT<span>YouthServe</span>
         </a>
       </div>
       <div class="nav-links">
@@ -35,21 +22,19 @@
           <a href="login.html" class="login">Sign In</a>
           <a href="signup.html" class="btn-nav">Join Now</a>
         </div>
-      </div>
+      </div> 
     </nav>
 
     <div class="search-filter-bar">
       <form class="filter-container">
-        <input
-          type="text"
-          placeholder="Search causes (e.g. Tutoring, Environment)"
-          class="search-input"
-        />
+        <input type="text" placeholder="Search causes (e.g. Tutoring, Environment)" class="search-input" />
         <select class="filter-select" aria-label="Filter by Category">
           <option value="">Category</option>
-          <option value="education">Education</option>
-          <option value="environment">Environment</option>
-          <option value="hunger">Hunger Relief</option>
+          <option value="Community Support">Community Support</option>
+          <option value="Parks & Recreation">Parks & Recreation</option>
+          <option value="Youth & Education">Youth & Education</option>
+          <option value="Animal Welfare">Animal Welfare</option>
+          <option value="Health & Wellness">Health & Wellness</option>
         </select>
         <select class="filter-select" aria-label="Filter by Age Group">
           <option value="">Age Group</option>
@@ -63,35 +48,23 @@
       <section class="listings-container">
         <div class="results-header">
           <h2>Volunteer Opportunities in <span>Charlotte</span></h2>
-          <p>Showing 1 opportunity</p>
-        </div>
-
-        <div class="listings-grid">
-          <div class="opp-card">
-            <div class="opp-img matthews-help-img">
-              <span class="category-tag status-closed">Closed</span>
+          <div class="stats-bar">
+            <div class="stat-pill">
+              <strong id="opp-count">0</strong>
+              <span>Opportunities</span>
             </div>
-
-            <div class="opp-content">
-              <h3>Matthews Help Center</h3>
-              <p class="org-name">Community Help & Thrift</p>
-
-              <div class="opp-details">
-                <span>📍 Matthews, NC</span>
-                <span>⏱️ 3 Hour Shifts</span>
-              </div>
-
-              <a
-                href="https://matthewshelpcenter.org/"
-                target="_blank"
-                rel="noopener"
-                class="btn-card btn-disabled"
-              >
-                Currently Full
-              </a>
+            <div class="stat-pill">
+              <strong>100%</strong>
+              <span>Verified</span>
+            </div>
+            <div class="stat-pill">
+              <strong>14+</strong>
+              <span>Age Friendly</span>
             </div>
           </div>
         </div>
+
+        <div class="listings-grid" id="listings-grid"></div>
       </section>
 
       <section class="map-view">
@@ -99,13 +72,15 @@
       </section>
     </main>
 
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
-    ></script>
-    <script type="module" src="js/source.js"></script>
+    <div id="opp-modal" class="modal-overlay">
+      <div class="modal-content">
+        <button class="close-modal">&times;</button>
+        <div id="modal-body"></div>
+      </div>
+    </div>
 
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script type="module" src="js/source.js"></script>
     <script src="js/opportunities.js"></script>
   </body>
 </html>

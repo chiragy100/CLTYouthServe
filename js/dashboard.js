@@ -16,6 +16,17 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// We need a copy of the database here to cross-reference the saved IDs.
+const opportunitiesData = [
+    { id: 1, name: "Matthews Help Center", city: "Matthews, NC", commitment: "Weekly / Recurring" },
+    { id: 2, name: "Indian Trail Parks & Rec", city: "Indian Trail, NC", commitment: "One-Time Event" },
+    { id: 3, name: "Hope for Harvest", city: "Charlotte, NC", commitment: "Recurring" },
+    { id: 4, name: "Union County Animal Services", city: "Monroe, NC", commitment: "Recurring" },
+    { id: 5, name: "Senior Nutrition Program", city: "Monroe, NC", commitment: "Recurring" },
+    { id: 6, name: "Union County Library", city: "Monroe, NC", commitment: "One-Time / Flexible" },
+    { id: 7, name: "Teal Diva", city: "Matthews, NC", commitment: "Flexible / Projects" }
+];
+
 onAuthStateChanged(auth, (user) => {
     if (user) {
         // --- Handle Email Verification Warning ---
@@ -25,25 +36,19 @@ onAuthStateChanged(auth, (user) => {
             const resendBtn = document.getElementById("resend-btn");
             if(resendBtn) {
                 resendBtn.addEventListener("click", () => {
-                    // 1. Give immediate visual feedback that it's processing
                     resendBtn.textContent = "Sending...";
                     resendBtn.style.opacity = "0.7";
-                    resendBtn.disabled = true; // Prevent them from spam-clicking it
+                    resendBtn.disabled = true;
 
-                    // 2. Send the email via Firebase
                     sendEmailVerification(user)
                     .then(() => {
-                        // 3. Morph the entire warning banner into a success message
                         warningBanner.innerHTML = `✅ <strong>Link Sent!</strong> Please check your inbox and spam folder.`;
-                        
-                        // Optional: Inject some quick inline styles to make it look like a success banner
-                        warningBanner.style.backgroundColor = "rgba(46, 204, 113, 0.1)"; // Light green tint
-                        warningBanner.style.color = "#27ae60"; // Darker green text
+                        warningBanner.style.backgroundColor = "rgba(46, 204, 113, 0.1)"; 
+                        warningBanner.style.color = "#27ae60"; 
                         warningBanner.style.borderColor = "#2ecc71";
                     })
                     .catch((error) => {
                         console.error("Error sending email:", error);
-                        // Revert the button if something goes wrong so they can try again
                         resendBtn.textContent = "Error. Try Again";
                         resendBtn.style.opacity = "1";
                         resendBtn.disabled = false;
@@ -79,10 +84,35 @@ onAuthStateChanged(auth, (user) => {
                 const roleBadge = document.getElementById("user-role");
                 roleBadge.textContent = (userData.role || "Student").toUpperCase();
 
+                // 4. RENDER STARRED OPPORTUNITIES
+                const starredIds = userData.starredOpportunities || [];
+                const starredCard = document.querySelector(".starred-card");
+                
+                if (starredIds.length > 0 && starredCard) {
+                    // Match the IDs against our database
+                    const savedItems = opportunitiesData.filter(opp => starredIds.includes(opp.id));
+                    
+                    // Build the HTML list
+                    let listHTML = `<div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">`;
+                    savedItems.forEach(item => {
+                        listHTML += `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; border: 1px solid #e2e8f0; border-radius: 8px; background: #fff;">
+                                <div>
+                                    <h4 style="margin: 0 0 4px 0; font-size: 0.95rem; color: #1e293b;">${item.name}</h4>
+                                    <p style="margin: 0; font-size: 0.75rem; color: #64748b;">📍 ${item.city} &nbsp;|&nbsp; 📅 ${item.commitment}</p>
+                                </div>
+                                <a href="opportunities.html" class="btn-card" style="padding: 6px 12px; font-size: 0.75rem; border: 1px solid var(--forest); color: var(--forest); text-decoration: none; border-radius: 6px; background: transparent;">View</a>
+                            </div>
+                        `;
+                    });
+                    listHTML += `</div>`;
+                    
+                    // Replace the empty state with the list
+                    starredCard.innerHTML = `<h3>Starred Opportunities</h3>${listHTML}`;
+                }
+
             } else {
                 console.warn("No profile document found in Firestore for this user!");
-                
-                // UI Fallbacks so it doesn't get stuck on "Loading..."
                 document.getElementById("greeting-name").textContent = "Volunteer";
                 document.getElementById("user-name").textContent = "Profile Missing";
                 document.getElementById("user-email").textContent = user.email;
@@ -91,8 +121,6 @@ onAuthStateChanged(auth, (user) => {
             }
         }).catch((error) => {
             console.error("Error fetching Firestore document:", error);
-            
-            // UI Fallbacks for network/permission errors
             document.getElementById("user-name").textContent = "Error loading data";
             document.getElementById("user-email").textContent = "Error loading data";
             document.getElementById("join-date").textContent = "Error loading data";

@@ -1,10 +1,10 @@
 // ==========================================
-// FIREBASE AUTHENTICATION SETUP
+// FIREBASE AUTHENTICATION & DATABASE SETUP
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
-// Make sure this exactly matches your login.js config
 const firebaseConfig = {
   apiKey: "AIzaSyCO-AmNN7QO_9wbqNq9nR1e_XYBdlRSLVg",
   authDomain: "clt-youthserve.firebaseapp.com",
@@ -18,23 +18,36 @@ const firebaseConfig = {
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
+const db = getFirestore(app);
 
-// Global authentication state
+// Global state
 let isLoggedIn = false;
+let currentUser = null;
+let userStarredIds = []; // Will hold the IDs of saved opportunities
 
 // Listen for actual Firebase login state changes
-onAuthStateChanged(auth, (user) => {
+onAuthStateChanged(auth, async (user) => {
     if (user) {
-        // User is signed in!
         isLoggedIn = true;
-        console.log("Firebase Auth: User is signed in as", user.email);
+        currentUser = user;
+        
+        // Fetch the user's saved opportunities from Firestore
+        const docRef = doc(db, "users", user.uid);
+        try {
+            const docSnap = await getDoc(docRef);
+            if (docSnap.exists() && docSnap.data().starredOpportunities) {
+                userStarredIds = docSnap.data().starredOpportunities;
+            }
+        } catch (error) {
+            console.error("Error fetching saved opportunities:", error);
+        }
     } else {
-        // User is signed out!
         isLoggedIn = false;
-        console.log("Firebase Auth: User is signed out.");
+        currentUser = null;
+        userStarredIds = [];
     }
     
-    // Crucial step: Re-apply filters to re-render the UI based on the new login state
+    // Re-apply filters to re-render the UI based on auth & saved data
     applyFilters();
 });
 
@@ -262,10 +275,9 @@ const searchInput = document.getElementById("search-input");
 const categoryFilter = document.getElementById("category-filter");
 const radiusFilter = document.getElementById("radius-filter");
 
-// Store active markers so we can clear them during filtering
 let markerGroup = L.layerGroup().addTo(map);
-let userLocation = null; // Will hold {lat, lng} once found
-let currentRadiusCircle = null; // Will hold the Leaflet Circle object
+let userLocation = null; 
+let currentRadiusCircle = null; 
 
 // Modal generation function
 function openModal(id) {
@@ -294,12 +306,10 @@ function openModal(id) {
             <p><strong>Category:</strong> ${opp.category}</p>
             <p><strong>Website:</strong> <a href="https://${opp.website}" target="_blank">${opp.website}</a></p>
         </div>
-
         <div class="modal-section">
             <h3>About the Organization</h3>
             <p><em>"${opp.mission}"</em></p>
         </div>
-
         <div class="modal-section">
             <h3>Requirements</h3>
             <ul>
@@ -308,7 +318,6 @@ function openModal(id) {
                 <li><strong>Training Required:</strong> ${opp.training}</li>
             </ul>
         </div>
-
         <div class="modal-section">
             <h3>Time Commitment & Schedule</h3>
             <ul>
@@ -317,20 +326,15 @@ function openModal(id) {
                 <li><strong>Schedule:</strong> ${opp.schedule}</li>
             </ul>
         </div>
-
         <div class="modal-section">
             <h3>What You'll Do</h3>
-            <ul>
-                ${tasksListHtml}
-            </ul>
+            <ul>${tasksListHtml}</ul>
         </div>
-
         <div class="modal-section modal-section-no-border">
             <h3>Contact & Location</h3>
             <p>📍 ${opp.address}</p>
             <p>✉️ <a href="mailto:${opp.contactInfo}">${opp.contactInfo}</a></p>
         </div>
-        
         <div class="modal-footer">
             <a href="${opp.link}" target="_blank" rel="noopener" class="modal-apply-btn ${applyDisabledClass}">
                 ${opp.isOpen ? 'Apply via External Link' : 'Applications Closed'}
@@ -338,35 +342,61 @@ function openModal(id) {
             <p class="modal-timestamp">Last Updated: June 2026</p>
         </div>
     `;
-
     modal.classList.add('active');
 }
 
-// Global Event Delegation for modal buttons
-document.addEventListener('click', function(e) {
+// Global Event Delegation for buttons (Learn More & Star Button)
+document.addEventListener('click', async function(e) {
+    // Check if they clicked "Learn More"
     const modalBtn = e.target.closest('.open-modal-btn');
     if (modalBtn) {
         const id = parseInt(modalBtn.getAttribute('data-opp-id'), 10);
         openModal(id);
+        return;
+    }
+
+    // Check if they clicked the Star/Save button
+    const starBtn = e.target.closest('.star-btn');
+    if (starBtn) {
+        if (!isLoggedIn || !currentUser) {
+            alert("Please create a free account or sign in to save opportunities!");
+            window.location.href = "login.html";
+            return;
+        }
+
+        const id = parseInt(starBtn.getAttribute('data-opp-id'), 10);
+        const isCurrentlyStarred = userStarredIds.includes(id);
+        const userRef = doc(db, "users", currentUser.uid);
+
+        try {
+            if (isCurrentlyStarred) {
+                // Remove from local array, update UI, and push removal to Firestore
+                userStarredIds = userStarredIds.filter(savedId => savedId !== id);
+                starBtn.textContent = '☆';
+                await updateDoc(userRef, { starredOpportunities: arrayRemove(id) });
+            } else {
+                // Add to local array, update UI, and push addition to Firestore
+                userStarredIds.push(id);
+                starBtn.textContent = '⭐';
+                await updateDoc(userRef, { starredOpportunities: arrayUnion(id) });
+            }
+        } catch (error) {
+            console.error("Error updating saved opportunities:", error);
+            alert("Something went wrong saving this. Please try again.");
+        }
     }
 });
 
 // ==========================================
 // RENDERING & FILTERING LOGIC
 // ==========================================
-
 function renderOpportunities(dataToRender) {
-    // 1. Update counter to show the TRUE total
     if (oppCountDisplay) oppCountDisplay.textContent = dataToRender.length;
-
-    // 2. Clear existing grid and map markers
     if (listingsGrid) listingsGrid.innerHTML = '';
     markerGroup.clearLayers();
 
-    // 3. APPLY LOG-IN LIMIT 
     const visibleData = isLoggedIn ? dataToRender : dataToRender.slice(0, 3);
 
-    // 4. Loop through the VISIBLE data only
     visibleData.forEach(opp => {
         // Render Map Marker
         const marker = L.marker(opp.coords);
@@ -394,20 +424,26 @@ function renderOpportunities(dataToRender) {
 
             const tasksPreviewHTML = opp.responsibilities.slice(0,3).map(task => `<li>${task}</li>`).join('');
             const dynamicBgStyle = opp.imageSrc ? `background-image: url('${opp.imageSrc}');` : '';
+            
+            // Check if this opportunity is in the user's saved array
+            const starIcon = userStarredIds.includes(opp.id) ? '⭐' : '☆';
 
             const cardHTML = `
               <div class="opp-card">
                 <div class="opp-img ${opp.imgClass || ''}" style="${dynamicBgStyle}">
                   <span class="category-tag ${statusBadgeClass}">${statusBadgeText}</span>
+                  
+                  <button class="star-btn" data-opp-id="${opp.id}" style="position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.9); border: 1px solid #ddd; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.1s;">
+                    ${starIcon}
+                  </button>
+
                 </div>
 
                 <div class="opp-content">
                   <h3>${opp.name}</h3>
                   <p class="org-name">${opp.category} &nbsp; ${verifiedBadge}</p>
                   
-                  <p class="opp-description">
-                    ${opp.description}
-                  </p>
+                  <p class="opp-description">${opp.description}</p>
 
                   <div class="opp-details">
                     <span>📍 ${opp.city}</span>
@@ -417,9 +453,7 @@ function renderOpportunities(dataToRender) {
 
                   <div class="role-brief">
                     <strong>What You'll Do:</strong>
-                    <ul>
-                      ${tasksPreviewHTML}
-                    </ul>
+                    <ul>${tasksPreviewHTML}</ul>
                   </div>
 
                   <button class="btn-card align-bottom open-modal-btn" data-opp-id="${opp.id}">Learn More</button>
@@ -430,10 +464,8 @@ function renderOpportunities(dataToRender) {
         }
     });
 
-    // 5. RENDER THE "LOG IN TO VIEW MORE" PROMPT
     if (!isLoggedIn && dataToRender.length > 3) {
         const hiddenCount = dataToRender.length - 3;
-        
         const loginPromptHTML = `
             <div class="login-prompt-card" style="text-align: center; padding: 30px 20px; background: #f8fafc; border-radius: 15px; border: 2px dashed #cbd5e1; margin-top: 10px;">
                 <h3 style="color: #0f172a; margin-bottom: 8px; font-size: 1.2rem;">🔒 Unlock ${hiddenCount} More Opportunities</h3>
@@ -451,22 +483,13 @@ function applyFilters() {
     const selectedRadius = radiusFilter.value ? parseInt(radiusFilter.value, 10) : null;
 
     const filteredData = opportunitiesData.filter(opp => {
-        // 1. Check Search (Matches name, description, or category)
-        const matchesSearch = 
-            opp.name.toLowerCase().includes(searchTerm) || 
-            opp.description.toLowerCase().includes(searchTerm) || 
-            opp.category.toLowerCase().includes(searchTerm);
-
-        // 2. Check Category
+        const matchesSearch = opp.name.toLowerCase().includes(searchTerm) || opp.description.toLowerCase().includes(searchTerm) || opp.category.toLowerCase().includes(searchTerm);
         const matchesCategory = selectedCategory === "" || opp.category === selectedCategory;
-
-        // 3. Check Distance Radius
-        let matchesRadius = true; // Default true if no radius selected
+        
+        let matchesRadius = true;
         if (selectedRadius && userLocation) {
             const oppLatLng = L.latLng(opp.coords[0], opp.coords[1]);
             const userLatLng = L.latLng(userLocation.lat, userLocation.lng);
-            
-            // Calculate distance in miles
             const distanceInMiles = map.distance(userLatLng, oppLatLng) * 0.000621371;
             matchesRadius = distanceInMiles <= selectedRadius;
         }
@@ -474,16 +497,13 @@ function applyFilters() {
         return matchesSearch && matchesCategory && matchesRadius;
     });
 
-    // 4. Handle Translucent Map Circle (Delete old circle first!)
     if (currentRadiusCircle) {
         map.removeLayer(currentRadiusCircle);
         currentRadiusCircle = null;
     }
 
     if (selectedRadius && userLocation) {
-        // Convert miles back to meters for Leaflet's L.circle
         const radiusInMeters = selectedRadius / 0.000621371;
-        
         currentRadiusCircle = L.circle([userLocation.lat, userLocation.lng], {
             radius: radiusInMeters,
             color: '#1b4332',      
@@ -491,20 +511,16 @@ function applyFilters() {
             fillOpacity: 0.1,      
             weight: 2
         }).addTo(map);
-
-        // Optional: Auto-zoom map to fit the new circle
         map.fitBounds(currentRadiusCircle.getBounds(), { padding: [20, 20] });
     }
 
-    // Re-render UI with filtered array
     renderOpportunities(filteredData);
 }
 
-// Attach Event Listeners to inputs
+// Attach Event Listeners
 searchInput.addEventListener('input', applyFilters);
 categoryFilter.addEventListener('change', applyFilters);
 radiusFilter.addEventListener('change', () => {
-    // Prevent filtering by radius if user denied location services
     if (!userLocation && radiusFilter.value !== "") {
         alert("We need your location to calculate distance. Please allow location access in your browser.");
         radiusFilter.value = ""; 
@@ -513,52 +529,30 @@ radiusFilter.addEventListener('change', () => {
     applyFilters();
 });
 
-// Initial Render on page load (Wait for Firebase state first if possible)
+// Initial Render
 renderOpportunities(opportunitiesData);
+setTimeout(() => { map.invalidateSize(); }, 200);
 
-setTimeout(() => {
-    map.invalidateSize();
-}, 200);
-
-// ==========================================
-// MODAL CLOSE LOGIC
-// ==========================================
+// Modal Close Logic
 const modalOverlay = document.getElementById('opp-modal');
 if (modalOverlay) {
-    modalOverlay.querySelector('.close-modal').addEventListener('click', () => {
-        modalOverlay.classList.remove('active');
-    });
-    modalOverlay.addEventListener('click', (e) => {
-        if (e.target === modalOverlay) {
-            modalOverlay.classList.remove('active');
-        }
-    });
+    modalOverlay.querySelector('.close-modal').addEventListener('click', () => modalOverlay.classList.remove('active'));
+    modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.classList.remove('active'); });
 }
 
-// ==========================================
-// GET USER'S CURRENT LOCATION
-// ==========================================
+// User Location Logic
 if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(
         (position) => {
-            userLocation = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude
-            };
-
+            userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
             const userMarker = L.circleMarker([userLocation.lat, userLocation.lng], {
-                radius: 8, fillColor: "#007bff", color: "#fff",
-                weight: 2, opacity: 1, fillOpacity: 0.8
+                radius: 8, fillColor: "#007bff", color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.8
             }).addTo(map);
-
             userMarker.bindPopup("<strong>You are here</strong>").openPopup();
-            
-            // Re-apply filters if they had a radius selected before location loaded
             applyFilters();
         },
         (error) => { 
             console.log("Location access denied/unavailable."); 
-            // Disable radius dropdown if location isn't available
             radiusFilter.disabled = true;
             radiusFilter.options[0].text = "Location Disabled";
         }

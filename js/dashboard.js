@@ -25,9 +25,29 @@ onAuthStateChanged(auth, (user) => {
             const resendBtn = document.getElementById("resend-btn");
             if(resendBtn) {
                 resendBtn.addEventListener("click", () => {
+                    // 1. Give immediate visual feedback that it's processing
+                    resendBtn.textContent = "Sending...";
+                    resendBtn.style.opacity = "0.7";
+                    resendBtn.disabled = true; // Prevent them from spam-clicking it
+
+                    // 2. Send the email via Firebase
                     sendEmailVerification(user)
-                    .then(() => alert("Verification email resent! Check your inbox/spam."))
-                    .catch((error) => console.error(error));
+                    .then(() => {
+                        // 3. Morph the entire warning banner into a success message
+                        warningBanner.innerHTML = `✅ <strong>Link Sent!</strong> Please check your inbox and spam folder.`;
+                        
+                        // Optional: Inject some quick inline styles to make it look like a success banner
+                        warningBanner.style.backgroundColor = "rgba(46, 204, 113, 0.1)"; // Light green tint
+                        warningBanner.style.color = "#27ae60"; // Darker green text
+                        warningBanner.style.borderColor = "#2ecc71";
+                    })
+                    .catch((error) => {
+                        console.error("Error sending email:", error);
+                        // Revert the button if something goes wrong so they can try again
+                        resendBtn.textContent = "Error. Try Again";
+                        resendBtn.style.opacity = "1";
+                        resendBtn.disabled = false;
+                    });
                 });
             }
         } else {

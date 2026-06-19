@@ -26,20 +26,24 @@
     </nav>
 
     <div class="search-filter-bar">
-      <form class="filter-container">
-        <input type="text" placeholder="Search causes (e.g. Tutoring, Environment)" class="search-input" />
-        <select class="filter-select" aria-label="Filter by Category">
-          <option value="">Category</option>
+      <form class="filter-container" onsubmit="event.preventDefault();">
+        <input type="text" id="search-input" placeholder="Search causes (e.g. Tutoring, Environment)" class="search-input" />
+        
+        <select id="category-filter" class="filter-select" aria-label="Filter by Category">
+          <option value="">All Categories</option>
           <option value="Community Support">Community Support</option>
           <option value="Parks & Recreation">Parks & Recreation</option>
           <option value="Youth & Education">Youth & Education</option>
           <option value="Animal Welfare">Animal Welfare</option>
           <option value="Health & Wellness">Health & Wellness</option>
         </select>
-        <select class="filter-select" aria-label="Filter by Age Group">
-          <option value="">Age Group</option>
-          <option value="middle">Middle School</option>
-          <option value="high">High School</option>
+
+        <select id="radius-filter" class="filter-select" aria-label="Filter by Distance">
+          <option value="">Any Distance</option>
+          <option value="5">Within 5 Miles</option>
+          <option value="10">Within 10 Miles</option>
+          <option value="25">Within 25 Miles</option>
+          <option value="50">Within 50 Miles</option>
         </select>
       </form>
     </div>

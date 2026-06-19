@@ -212,14 +212,20 @@ const opportunitiesData = [
 ];
 
 // ==========================================
-// RENDER UI (PINS & CARDS)
+// STATE & DOM ELEMENTS
 // ==========================================
 const listingsGrid = document.getElementById("listings-grid");
 const oppCountDisplay = document.getElementById("opp-count");
+const searchInput = document.getElementById("search-input");
+const categoryFilter = document.getElementById("category-filter");
+const radiusFilter = document.getElementById("radius-filter");
 
-if (oppCountDisplay) oppCountDisplay.textContent = opportunitiesData.length;
+// Store active markers so we can clear them during filtering
+let markerGroup = L.layerGroup().addTo(map);
+let userLocation = null; // Will hold {lat, lng} once found
+let currentRadiusCircle = null; // Will hold the Leaflet Circle object
 
-// Modal generation function (no longer exposed to the global window object)
+// Modal generation function
 function openModal(id) {
     const opp = opportunitiesData.find(o => o.id === id);
     if (!opp) return;
@@ -294,7 +300,7 @@ function openModal(id) {
     modal.classList.add('active');
 }
 
-// Global Event Delegation for buttons
+// Global Event Delegation for modal buttons
 document.addEventListener('click', function(e) {
     const modalBtn = e.target.closest('.open-modal-btn');
     if (modalBtn) {
@@ -303,69 +309,152 @@ document.addEventListener('click', function(e) {
     }
 });
 
-opportunitiesData.forEach(opp => {
-    // 1. RENDER MAP MARKER & POPUP
-    const marker = L.marker(opp.coords).addTo(map);
-    const popupContent = `
-      <div class="map-popup-card">
-        <h3 class="popup-title">${opp.name}</h3>
-        <span class="popup-category-tag">${opp.category}</span>
-        <p class="popup-text"><strong>Status:</strong> ${opp.isOpen ? 'Accepting Volunteers' : 'Currently Full'}</p>
-        <p class="popup-text">📍 ${opp.address}</p>
-        <hr class="popup-divider">
-        <button class="btn-card full-width open-modal-btn" data-opp-id="${opp.id}">Learn More</button>
-      </div>
-    `;
-    marker.bindPopup(popupContent);
+// ==========================================
+// RENDERING & FILTERING LOGIC
+// ==========================================
 
-    // 2. RENDER LEFT-SIDE CARD
-    if (listingsGrid) {
-        const statusBadgeClass = opp.isOpen ? "status-open" : "status-closed";
-        const statusBadgeText = opp.isOpen ? "Open" : "Closed";
-        
-        const verifiedBadge = opp.verified === true 
-            ? `<span class="verified-badge">🟢 Verified Nonprofit</span>` 
-            : (opp.verified === "gov" ? `<span class="gov-badge">🏛️ Gov Org</span>` : '');
+function renderOpportunities(dataToRender) {
+    // 1. Update counter
+    if (oppCountDisplay) oppCountDisplay.textContent = dataToRender.length;
 
-        const tasksPreviewHTML = opp.responsibilities.slice(0,3).map(task => `<li>${task}</li>`).join('');
+    // 2. Clear existing grid and map markers
+    if (listingsGrid) listingsGrid.innerHTML = '';
+    markerGroup.clearLayers();
 
-        // The background image remains an inline style here because it relies on dynamic data
-        const dynamicBgStyle = opp.imageSrc ? `background-image: url('${opp.imageSrc}');` : '';
-
-        const cardHTML = `
-          <div class="opp-card">
-            <div class="opp-img ${opp.imgClass}" style="${dynamicBgStyle}">
-              <span class="category-tag ${statusBadgeClass}">${statusBadgeText}</span>
-            </div>
-
-            <div class="opp-content">
-              <h3>${opp.name}</h3>
-              <p class="org-name">${opp.category} &nbsp; ${verifiedBadge}</p>
-              
-              <p class="opp-description">
-                ${opp.description}
-              </p>
-
-              <div class="opp-details">
-                <span>📍 ${opp.city}</span>
-                <span>⏱️ ${opp.hours}</span>
-                <span>📅 ${opp.commitment}</span>
-              </div>
-
-              <div class="role-brief">
-                <strong>What You'll Do:</strong>
-                <ul>
-                  ${tasksPreviewHTML}
-                </ul>
-              </div>
-
-              <button class="btn-card align-bottom open-modal-btn" data-opp-id="${opp.id}">Learn More</button>
-            </div>
+    dataToRender.forEach(opp => {
+        // Render Map Marker
+        const marker = L.marker(opp.coords);
+        const popupContent = `
+          <div class="map-popup-card">
+            <h3 class="popup-title">${opp.name}</h3>
+            <span class="popup-category-tag">${opp.category}</span>
+            <p class="popup-text"><strong>Status:</strong> ${opp.isOpen ? 'Accepting Volunteers' : 'Currently Full'}</p>
+            <p class="popup-text">📍 ${opp.address}</p>
+            <hr class="popup-divider">
+            <button class="btn-card full-width open-modal-btn" data-opp-id="${opp.id}">Learn More</button>
           </div>
         `;
-        listingsGrid.insertAdjacentHTML("beforeend", cardHTML);
+        marker.bindPopup(popupContent);
+        markerGroup.addLayer(marker);
+
+        // Render Left-Side Card
+        if (listingsGrid) {
+            const statusBadgeClass = opp.isOpen ? "status-open" : "status-closed";
+            const statusBadgeText = opp.isOpen ? "Open" : "Closed";
+            
+            const verifiedBadge = opp.verified === true 
+                ? `<span class="verified-badge">🟢 Verified Nonprofit</span>` 
+                : (opp.verified === "gov" ? `<span class="gov-badge">🏛️ Gov Org</span>` : '');
+
+            const tasksPreviewHTML = opp.responsibilities.slice(0,3).map(task => `<li>${task}</li>`).join('');
+            const dynamicBgStyle = opp.imageSrc ? `background-image: url('${opp.imageSrc}');` : '';
+
+            const cardHTML = `
+              <div class="opp-card">
+                <div class="opp-img ${opp.imgClass || ''}" style="${dynamicBgStyle}">
+                  <span class="category-tag ${statusBadgeClass}">${statusBadgeText}</span>
+                </div>
+
+                <div class="opp-content">
+                  <h3>${opp.name}</h3>
+                  <p class="org-name">${opp.category} &nbsp; ${verifiedBadge}</p>
+                  
+                  <p class="opp-description">
+                    ${opp.description}
+                  </p>
+
+                  <div class="opp-details">
+                    <span>📍 ${opp.city}</span>
+                    <span>⏱️ ${opp.hours}</span>
+                    <span>📅 ${opp.commitment}</span>
+                  </div>
+
+                  <div class="role-brief">
+                    <strong>What You'll Do:</strong>
+                    <ul>
+                      ${tasksPreviewHTML}
+                    </ul>
+                  </div>
+
+                  <button class="btn-card align-bottom open-modal-btn" data-opp-id="${opp.id}">Learn More</button>
+                </div>
+              </div>
+            `;
+            listingsGrid.insertAdjacentHTML("beforeend", cardHTML);
+        }
+    });
+}
+
+function applyFilters() {
+    const searchTerm = searchInput.value.toLowerCase().trim();
+    const selectedCategory = categoryFilter.value;
+    const selectedRadius = radiusFilter.value ? parseInt(radiusFilter.value, 10) : null;
+
+    const filteredData = opportunitiesData.filter(opp => {
+        // 1. Check Search (Matches name, description, or category)
+        const matchesSearch = 
+            opp.name.toLowerCase().includes(searchTerm) || 
+            opp.description.toLowerCase().includes(searchTerm) || 
+            opp.category.toLowerCase().includes(searchTerm);
+
+        // 2. Check Category
+        const matchesCategory = selectedCategory === "" || opp.category === selectedCategory;
+
+        // 3. Check Distance Radius
+        let matchesRadius = true; // Default true if no radius selected
+        if (selectedRadius && userLocation) {
+            const oppLatLng = L.latLng(opp.coords[0], opp.coords[1]);
+            const userLatLng = L.latLng(userLocation.lat, userLocation.lng);
+            
+            // Calculate distance in miles
+            const distanceInMiles = map.distance(userLatLng, oppLatLng) * 0.000621371;
+            matchesRadius = distanceInMiles <= selectedRadius;
+        }
+
+        return matchesSearch && matchesCategory && matchesRadius;
+    });
+
+    // 4. Handle Translucent Map Circle (Delete old circle first!)
+    if (currentRadiusCircle) {
+        map.removeLayer(currentRadiusCircle);
+        currentRadiusCircle = null;
     }
+
+    if (selectedRadius && userLocation) {
+        // Convert miles back to meters for Leaflet's L.circle
+        const radiusInMeters = selectedRadius / 0.000621371;
+        
+        currentRadiusCircle = L.circle([userLocation.lat, userLocation.lng], {
+            radius: radiusInMeters,
+            color: '#1b4332',      // Using your theme's emerald/forest color
+            fillColor: '#1b4332',
+            fillOpacity: 0.1,      // Translucent
+            weight: 2
+        }).addTo(map);
+
+        // Optional: Auto-zoom map to fit the new circle
+        map.fitBounds(currentRadiusCircle.getBounds(), { padding: [20, 20] });
+    }
+
+    // Re-render UI with filtered array
+    renderOpportunities(filteredData);
+}
+
+// Attach Event Listeners to inputs
+searchInput.addEventListener('input', applyFilters);
+categoryFilter.addEventListener('change', applyFilters);
+radiusFilter.addEventListener('change', () => {
+    // Prevent filtering by radius if user denied location services
+    if (!userLocation && radiusFilter.value !== "") {
+        alert("We need your location to calculate distance. Please allow location access in your browser.");
+        radiusFilter.value = ""; 
+        return;
+    }
+    applyFilters();
 });
+
+// Initial Render on page load
+renderOpportunities(opportunitiesData);
 
 setTimeout(() => {
     map.invalidateSize();
@@ -392,16 +481,26 @@ if (modalOverlay) {
 if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(
         (position) => {
-            const userLat = position.coords.latitude;
-            const userLng = position.coords.longitude;
+            userLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude
+            };
 
-            const userMarker = L.circleMarker([userLat, userLng], {
+            const userMarker = L.circleMarker([userLocation.lat, userLocation.lng], {
                 radius: 8, fillColor: "#007bff", color: "#fff",
                 weight: 2, opacity: 1, fillOpacity: 0.8
             }).addTo(map);
 
             userMarker.bindPopup("<strong>You are here</strong>").openPopup();
+            
+            // If they happen to select a radius *before* location loaded, re-apply it now
+            applyFilters();
         },
-        (error) => { console.log("Location access denied/unavailable."); }
+        (error) => { 
+            console.log("Location access denied/unavailable."); 
+            // Disable radius dropdown if location isn't available
+            radiusFilter.disabled = true;
+            radiusFilter.options[0].text = "Location Disabled";
+        }
     );
 }

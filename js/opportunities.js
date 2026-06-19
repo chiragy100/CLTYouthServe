@@ -1,4 +1,46 @@
-// Initialize Leaflet map centered on the Greater Charlotte area
+// ==========================================
+// FIREBASE AUTHENTICATION SETUP
+// ==========================================
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
+import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
+
+// Make sure this exactly matches your login.js config
+const firebaseConfig = {
+  apiKey: "AIzaSyCO-AmNN7QO_9wbqNq9nR1e_XYBdlRSLVg",
+  authDomain: "clt-youthserve.firebaseapp.com",
+  projectId: "clt-youthserve",
+  storageBucket: "clt-youthserve.firebasestorage.app",
+  messagingSenderId: "29022006642",
+  appId: "1:29022006642:web:d783a76d7a0e2fd91b01eb",
+  measurementId: "G-7LWN04E6QL"
+};
+
+// Initialize Firebase
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+
+// Global authentication state
+let isLoggedIn = false;
+
+// Listen for actual Firebase login state changes
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        // User is signed in!
+        isLoggedIn = true;
+        console.log("Firebase Auth: User is signed in as", user.email);
+    } else {
+        // User is signed out!
+        isLoggedIn = false;
+        console.log("Firebase Auth: User is signed out.");
+    }
+    
+    // Crucial step: Re-apply filters to re-render the UI based on the new login state
+    applyFilters();
+});
+
+// ==========================================
+// MAP INITIALIZATION
+// ==========================================
 const centerCoords = [35.12, -80.70]; 
 const map = L.map('interactive-map', {
     center: centerCoords,
@@ -314,14 +356,18 @@ document.addEventListener('click', function(e) {
 // ==========================================
 
 function renderOpportunities(dataToRender) {
-    // 1. Update counter
+    // 1. Update counter to show the TRUE total
     if (oppCountDisplay) oppCountDisplay.textContent = dataToRender.length;
 
     // 2. Clear existing grid and map markers
     if (listingsGrid) listingsGrid.innerHTML = '';
     markerGroup.clearLayers();
 
-    dataToRender.forEach(opp => {
+    // 3. APPLY LOG-IN LIMIT 
+    const visibleData = isLoggedIn ? dataToRender : dataToRender.slice(0, 3);
+
+    // 4. Loop through the VISIBLE data only
+    visibleData.forEach(opp => {
         // Render Map Marker
         const marker = L.marker(opp.coords);
         const popupContent = `
@@ -383,6 +429,20 @@ function renderOpportunities(dataToRender) {
             listingsGrid.insertAdjacentHTML("beforeend", cardHTML);
         }
     });
+
+    // 5. RENDER THE "LOG IN TO VIEW MORE" PROMPT
+    if (!isLoggedIn && dataToRender.length > 3) {
+        const hiddenCount = dataToRender.length - 3;
+        
+        const loginPromptHTML = `
+            <div class="login-prompt-card" style="text-align: center; padding: 30px 20px; background: #f8fafc; border-radius: 15px; border: 2px dashed #cbd5e1; margin-top: 10px;">
+                <h3 style="color: #0f172a; margin-bottom: 8px; font-size: 1.2rem;">🔒 Unlock ${hiddenCount} More Opportunities</h3>
+                <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5;">Create a free account or sign in to view the remaining volunteer events and their map locations.</p>
+                <a href="login.html" class="btn-card" style="background: var(--forest); color: white; padding: 10px 24px; text-decoration: none;">Sign In to View All</a>
+            </div>
+        `;
+        listingsGrid.insertAdjacentHTML("beforeend", loginPromptHTML);
+    }
 }
 
 function applyFilters() {
@@ -426,9 +486,9 @@ function applyFilters() {
         
         currentRadiusCircle = L.circle([userLocation.lat, userLocation.lng], {
             radius: radiusInMeters,
-            color: '#1b4332',      // Using your theme's emerald/forest color
+            color: '#1b4332',      
             fillColor: '#1b4332',
-            fillOpacity: 0.1,      // Translucent
+            fillOpacity: 0.1,      
             weight: 2
         }).addTo(map);
 
@@ -453,7 +513,7 @@ radiusFilter.addEventListener('change', () => {
     applyFilters();
 });
 
-// Initial Render on page load
+// Initial Render on page load (Wait for Firebase state first if possible)
 renderOpportunities(opportunitiesData);
 
 setTimeout(() => {
@@ -493,7 +553,7 @@ if ("geolocation" in navigator) {
 
             userMarker.bindPopup("<strong>You are here</strong>").openPopup();
             
-            // If they happen to select a radius *before* location loaded, re-apply it now
+            // Re-apply filters if they had a radius selected before location loaded
             applyFilters();
         },
         (error) => { 

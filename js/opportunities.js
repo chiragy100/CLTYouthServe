@@ -21,15 +21,20 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // Global state
+// Global state
 let isLoggedIn = false;
+let hasFullAccess = false; // Add this new variable
 let currentUser = null;
-let userStarredIds = []; // Will hold the IDs of saved opportunities
+let userStarredIds = []; 
 
 // Listen for actual Firebase login state changes
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         isLoggedIn = true;
         currentUser = user;
+        
+        // CHECK IF EMAIL IS VERIFIED
+        hasFullAccess = user.emailVerified; 
         
         // Fetch the user's saved opportunities from Firestore
         const docRef = doc(db, "users", user.uid);
@@ -43,6 +48,7 @@ onAuthStateChanged(auth, async (user) => {
         }
     } else {
         isLoggedIn = false;
+        hasFullAccess = false; // Reset on logout
         currentUser = null;
         userStarredIds = [];
     }
@@ -263,6 +269,90 @@ const opportunitiesData = [
             "Sort/package adaptive port-access infusion shirts",
             "Mail prayers and letters of solidarity"
         ]
+    },
+    {
+        id: 8,
+        name: "Greater Matthews Habitat for Humanity",
+        category: "Community Development",
+        city: "Matthews, NC",
+        address: "2447 East John Street, Matthews, NC 28105",
+        hours: "Flexible",
+        age: "16+",
+        isOpen: true,
+        contactInfo: "704-847-4266",
+        link: "https://www.greatermatthewshabitat.org/getinvolved",
+        coords: [35.0933, -80.6975],
+        imageSrc: "images/Greater Matthews Habitat for Humanity.jpg",
+        description: "A non-profit affordable housing organization that brings people together to build homes, communities, and hope for local families in need.",
+        commitment: "Recurring",
+        verified: true,
+        website: "greatermatthewshabitat.org",
+        bgCheck: "Yes (Required for court-ordered community service)",
+        training: "Yes (Online orientation quiz and store tour)",
+        schedule: "Tuesday–Friday 10:00 a.m. – 5:00 p.m. and Saturday 9:00 a.m. – 5:00 p.m.",
+        mission: "We bring people together to build homes and hope.",
+        responsibilities: [
+            "Swing hammers, paint, and install materials on active construction sites",
+            "Prepare and serve lunches to builders",
+            "Sort and lift heavy donated furniture at the retail ReStore",
+            "Manage clerical work in the main office"
+        ]
+    },
+    {
+        id: 9,
+        name: "Common Heart",
+        category: "Hunger Relief",
+        city: "Indian Trail, NC",
+        address: "116 Business Park Dr, Suite A, Indian Trail, NC 28079",
+        hours: "2 - 4 Hours",
+        age: "All Ages (14-17 independent)",
+        isOpen: true,
+        contactInfo: "volunteer@commonheart.org",
+        link: "https://commonheart.org/volunteer/",
+        coords: [35.0780, -80.6550],
+        imageSrc: "images/Common Heart.jpg",
+        description: "A grassroots non-profit operating a network of food pantries and delivery programs to eradicate food insecurity and eliminate generational poverty.",
+        commitment: "Recurring",
+        verified: true,
+        website: "commonheart.org",
+        bgCheck: "Position-dependent (Required for court-ordered service)",
+        training: "Yes (Civil Rights/FDA Anti-Discrimination training)",
+        schedule: "Highly flexible. Morning, afternoon, and evening slots available.",
+        mission: "Common Heart’s mission is to foster individual and community engagement to feed hungry families and empower those in poverty, creating a sustainable community where all can thrive.",
+        responsibilities: [
+            "Weigh, sort, and pack food donations",
+            "Drive personal vehicles to rescue surplus inventory",
+            "Deliver monthly food boxes to homebound neighbors",
+            "Answer phones and connect neighbors with community resources"
+        ]
+    },
+    {
+        id: 10,
+        name: "Bright Blessings",
+        category: "Children's Services",
+        city: "Matthews, NC",
+        address: "1150 Crews Road, Suite C, Matthews, NC 28105",
+        hours: "1 Hour",
+        age: "14+",
+        isOpen: true,
+        contactInfo: "chloe@brightblessingsusa.org",
+        link: "https://www.brightblessingsusa.org/getinvolved",
+        coords: [35.1055, -80.7060],
+        imageSrc: "images/Bright Blessings.jpg",
+        description: "A non-profit organization dedicated to bringing joy, care, and support to homeless and impoverished children and their families.",
+        commitment: "Recurring",
+        verified: true,
+        website: "brightblessingsusa.org",
+        bgCheck: "Not specified",
+        training: "Yes",
+        schedule: "Monday – Thursday 9:00 a.m. – 3:00 p.m. and Friday 9:00 a.m. – 12:00 p.m.",
+        mission: "Our mission is to bring joy, care, and support to homeless and impoverished children and their families.",
+        responsibilities: [
+            "Assemble hygiene and care kits",
+            "Wrap birthday presents and write personalized birthday cards",
+            "Organize off-site collection drives for needed supplies",
+            "Facilitate birthday celebrations at local homeless shelters"
+        ]
     }
 ];
 
@@ -391,11 +481,11 @@ document.addEventListener('click', async function(e) {
 // RENDERING & FILTERING LOGIC
 // ==========================================
 function renderOpportunities(dataToRender) {
-    if (oppCountDisplay) oppCountDisplay.textContent = dataToRender.length;
+if (oppCountDisplay) oppCountDisplay.textContent = dataToRender.length;
     if (listingsGrid) listingsGrid.innerHTML = '';
     markerGroup.clearLayers();
 
-    const visibleData = isLoggedIn ? dataToRender : dataToRender.slice(0, 3);
+    const visibleData = hasFullAccess ? dataToRender : dataToRender.slice(0, 3);
 
     visibleData.forEach(opp => {
         // Render Map Marker
@@ -433,13 +523,14 @@ function renderOpportunities(dataToRender) {
                 <div class="opp-img ${opp.imgClass || ''}" style="${dynamicBgStyle}">
                   <span class="category-tag ${statusBadgeClass}">${statusBadgeText}</span>
                   
-                  <button class="star-btn" data-opp-id="${opp.id}" style="position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.9); border: 1px solid #ddd; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.1s;">
-                    ${starIcon}
-                  </button>
+                  
 
                 </div>
 
                 <div class="opp-content">
+                <button class="star-btn" data-opp-id="${opp.id}" style="position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.9); border: 1px solid #ddd; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.1s;">
+                    ${starIcon}
+                  </button>
                   <h3>${opp.name}</h3>
                   <p class="org-name">${opp.category} &nbsp; ${verifiedBadge}</p>
                   
@@ -464,13 +555,23 @@ function renderOpportunities(dataToRender) {
         }
     });
 
-    if (!isLoggedIn && dataToRender.length > 3) {
+    if (!hasFullAccess && dataToRender.length > 3) {
         const hiddenCount = dataToRender.length - 3;
+        
+        // Adjust the messaging based on whether they are logged in but unverified, or not logged in at all
+        const promptTitle = isLoggedIn 
+            ? "Verify Your Email to Unlock" 
+            : "Unlock";
+            
+        const promptMessage = isLoggedIn 
+            ? "Please check your inbox and verify your email to view the remaining volunteer events." 
+            : "Create a free account and verify your email to view the remaining volunteer events and their map locations.";
+
         const loginPromptHTML = `
             <div class="login-prompt-card" style="text-align: center; padding: 30px 20px; background: #f8fafc; border-radius: 15px; border: 2px dashed #cbd5e1; margin-top: 10px;">
-                <h3 style="color: #0f172a; margin-bottom: 8px; font-size: 1.2rem;">🔒 Unlock ${hiddenCount} More Opportunities</h3>
-                <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5;">Create a free account or sign in to view the remaining volunteer events and their map locations.</p>
-                <a href="login.html" class="btn-card" style="background: var(--forest); color: white; padding: 10px 24px; text-decoration: none;">Sign In to View All</a>
+                <h3 style="color: #0f172a; margin-bottom: 8px; font-size: 1.2rem;">🔒 ${promptTitle} ${hiddenCount} More Opportunities</h3>
+                <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5;">${promptMessage}</p>
+                ${!isLoggedIn ? `<a href="login.html" class="btn-card" style="background: var(--forest); color: white; padding: 10px 24px; text-decoration: none;">Sign In to View All</a>` : ''}
             </div>
         `;
         listingsGrid.insertAdjacentHTML("beforeend", loginPromptHTML);

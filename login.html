@@ -36,19 +36,19 @@
         <form id="login-form" class="auth-form">
           <div class="form-group">
             <label for="email">Email Address</label>
-            <input type="email" id="email" placeholder="name@example.com" required />
+            <input type="email" id="email" autocomplete="email" placeholder="name@example.com" required />
           </div>
 
           <div class="form-group" id="password-group">
             <label for="password">Password</label>
-            <input type="password" id="password" placeholder="••••••••" required />
+            <input type="password" id="password" autocomplete="current-password" placeholder="••••••••" required />
           </div>
 
           <div class="forgot-password-container">
             <a href="#" id="forgot-password-link">Forgot Password?</a>
           </div>
           <!--ERROR embedded within the UI-->
-          <div id="error-message" class="error-box"></div>
+          <div id="error-message" class="error-box" role="alert" aria-live="polite"></div>
 
           <button id="login-btn" type="submit" class="btn-solid btn-full">Sign In</button>
         </form>
@@ -60,5 +60,6 @@
     </div>
 
     <script type="module" src="js/login.js"></script>
+    <script type="module" src="js/password-toggle.js"></script>
   </body>
 </html>

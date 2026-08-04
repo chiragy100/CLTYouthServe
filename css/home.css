@@ -22,6 +22,15 @@
 
 h1 { font-size: 3.8rem; line-height: 1.1; margin: 1rem 0; color: var(--dark); }
 
+@media (max-width: 900px) {
+    .hero { padding: 56px 6% 80px; }
+    .hero-container { grid-template-columns: 1fr; gap: 40px; }
+    h1 { font-size: clamp(2.5rem, 8vw, 3.8rem); }
+    .city-map { height: min(55vw, 450px); }
+    .feature-section { padding: 70px 6%; }
+    .feature-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
+}
+
 .highlight { color: var(--emerald); }
 
 .hero-btns { margin-top: 2.5rem; display: flex; gap: 1rem}

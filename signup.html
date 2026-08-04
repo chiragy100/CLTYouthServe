@@ -37,12 +37,12 @@
         <form id="signup-form" class="auth-form">
           <div class="form-group">
             <label for="fullname">Full Name</label>
-            <input type="text" id="fullname" placeholder="Jane Doe" required />
+            <input type="text" id="fullname" autocomplete="name" placeholder="Jane Doe" required />
           </div>
 
           <div class="form-group">
             <label for="email">Email Address</label>
-            <input type="email" id="email" placeholder="name@example.com" required />
+            <input type="email" id="email" autocomplete="email" placeholder="name@example.com" required />
           </div>
 
           <div class="form-group">
@@ -53,15 +53,15 @@
 
           <div class="form-group">
             <label for="password">Password</label>
-            <input type="password" id="password" placeholder="••••••••" required />
+            <input type="password" id="password" autocomplete="new-password" placeholder="••••••••" required />
           </div>
 
           <div class="form-group">
             <label for="confirm-password">Confirm Password</label>
-            <input type="password" id="confirm-password" placeholder="••••••••" required />
+            <input type="password" id="confirm-password" autocomplete="new-password" placeholder="••••••••" required />
           </div>
           <!--ERROR embedded within the UI-->
-          <div id="error-message" class="error-box"></div>
+          <div id="error-message" class="error-box" role="alert" aria-live="polite"></div>
 
           <button id="submit-btn" type="submit" class="btn-solid btn-full">Create Account</button>
         </form>
@@ -73,5 +73,6 @@
     </div>
 
     <script type="module" src="js/register.js"></script>
+    <script type="module" src="js/password-toggle.js"></script>
   </body>
 </html>

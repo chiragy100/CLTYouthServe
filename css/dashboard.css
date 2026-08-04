@@ -30,6 +30,7 @@
 .btn-resend:hover {
     background: rgba(133, 100, 4, 0.1);
 }
+.verification-required { opacity: .65; }
 
 /* Layout */
 .dashboard-container {

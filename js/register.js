@@ -26,6 +26,7 @@ const emailInput = document.getElementById("email");
 const fullnameInput = document.getElementById("fullname");
 const dobInput = document.getElementById("dob");
 const errorBox = document.getElementById("error-message");
+const signupForm = document.getElementById("signup-form");
 
 // Helper function to clear individual input red glows when a user fixes them
 const inputs = [emailInput, passwordInput, confirmPasswordInput, fullnameInput, dobInput];
@@ -37,9 +38,10 @@ inputs.forEach(input => {
     }
 });
 
-if (submitBtn) {
-  submitBtn.addEventListener("click", function(event) {
+if (signupForm) {
+  signupForm.addEventListener("submit", function(event) {
       event.preventDefault(); 
+      if (submitBtn) submitBtn.disabled = true;
 
       // Reset UI state at the start of every click submit attempt
       if (errorBox) errorBox.textContent = "";
@@ -61,12 +63,14 @@ if (submitBtn) {
       if (!fullname) {
           if (errorBox) errorBox.textContent = "Please enter your full name.";
           if (fullnameInput) fullnameInput.classList.add("invalid-field");
+          if (submitBtn) submitBtn.disabled = false;
           return;
       }
 
       if (!email) {
           if (errorBox) errorBox.textContent = "Please enter your email address.";
           if (emailInput) emailInput.classList.add("invalid-field");
+          if (submitBtn) submitBtn.disabled = false;
           return;
       }
 
@@ -75,12 +79,14 @@ if (submitBtn) {
       if (!emailRegex.test(email)) {
           if (errorBox) errorBox.textContent = "Please enter a valid email address.";
           if (emailInput) emailInput.classList.add("invalid-field");
+          if (submitBtn) submitBtn.disabled = false;
           return;
       }
 
       if (!dob) {
           if (errorBox) errorBox.textContent = "Please select your date of birth.";
           if (dobInput) dobInput.classList.add("invalid-field");
+          if (submitBtn) submitBtn.disabled = false;
           return;
       }
 
@@ -88,6 +94,7 @@ if (submitBtn) {
       if (password.length < 6) {
           if (errorBox) errorBox.textContent = "Password must be at least 6 characters long.";
           if (passwordInput) passwordInput.classList.add("invalid-field");
+          if (submitBtn) submitBtn.disabled = false;
           return;
       }
 
@@ -95,6 +102,7 @@ if (submitBtn) {
       if (password !== confirmPassword) {
           if (errorBox) errorBox.textContent = "Passwords do not match!";
           if (confirmPasswordInput) confirmPasswordInput.classList.add("invalid-field");
+          if (submitBtn) submitBtn.disabled = false;
           return;
       }
 
@@ -124,7 +132,10 @@ if (submitBtn) {
                     console.log("User data stored in Firestore");
                     
                     // 5. SEND VERIFICATION & REDIRECT
-                    sendEmailVerification(user).then(() => {
+      sendEmailVerification(user, {
+          url: new URL("login.html", window.location.href).href,
+          handleCodeInApp: false
+      }).then(() => {
                         if (errorBox) {
                             errorBox.style.color = "var(--emerald)"; 
                             errorBox.textContent = "Account created! Verification email sent. Redirecting...";
@@ -132,11 +143,15 @@ if (submitBtn) {
                         setTimeout(() => {
                             window.location.href = "dashboard.html";
                         }, 2000);
+                    }).catch(() => {
+                        if (errorBox) errorBox.textContent = "Account created, but we could not send the verification email. Please use Resend Link from your dashboard.";
+                        if (submitBtn) submitBtn.disabled = false;
                     });
                 })
                 .catch((error) => {
                     console.error("Error writing to DB:", error);
-                    if (errorBox) errorBox.textContent = "Account created, but failed to save profile data.";
+              if (errorBox) errorBox.textContent = "Account created, but failed to save profile data.";
+              if (submitBtn) submitBtn.disabled = false;
                 });
 
           })
@@ -159,6 +174,7 @@ if (submitBtn) {
                       errorBox.textContent = "An unexpected registration error occurred. Details: " + errorCode;
                   }
               }
+              if (submitBtn) submitBtn.disabled = false;
           });
   });
 }

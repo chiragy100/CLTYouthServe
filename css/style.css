@@ -12,6 +12,10 @@
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
+html { font-size: 100%; }
+img { max-width: 100%; display: block; }
+button, input, select { font: inherit; }
+:focus-visible { outline: 3px solid var(--sage); outline-offset: 2px; }
 
 body {
     font-family: 'Open Sans', sans-serif;
@@ -89,6 +93,14 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     gap: 1.5rem;
     border-left: 2px solid #eee;
     padding-left: 1.5rem;
+}
+
+@media (max-width: 700px) {
+    .navbar { padding: 1rem 5%; gap: 1rem; flex-wrap: wrap; }
+    .nav-links { gap: 1rem; flex-wrap: wrap; justify-content: flex-end; }
+    .nav-auth { gap: .75rem; padding-left: .75rem; }
+    .logo { font-size: 1.1rem; }
+    .web-logo { width: 32px; height: 32px; margin-right: 6px; }
 }
 
 /* =========================================

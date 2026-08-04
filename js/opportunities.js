@@ -21,9 +21,8 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 // Global state
-// Global state
 let isLoggedIn = false;
-let hasFullAccess = false; // Add this new variable
+let hasFullAccess = false; 
 let currentUser = null;
 let userStarredIds = []; 
 
@@ -32,8 +31,6 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         isLoggedIn = true;
         currentUser = user;
-        
-        // CHECK IF EMAIL IS VERIFIED
         hasFullAccess = user.emailVerified; 
         
         // Fetch the user's saved opportunities from Firestore
@@ -48,7 +45,7 @@ onAuthStateChanged(auth, async (user) => {
         }
     } else {
         isLoggedIn = false;
-        hasFullAccess = false; // Reset on logout
+        hasFullAccess = false;
         currentUser = null;
         userStarredIds = [];
     }
@@ -61,18 +58,52 @@ onAuthStateChanged(auth, async (user) => {
 // MAP INITIALIZATION
 // ==========================================
 const centerCoords = [35.12, -80.70]; 
+const mapBounds = L.latLngBounds([34.72, -81.12], [35.58, -80.18]);
 const map = L.map('interactive-map', {
     center: centerCoords,
-    zoom: 10, 
-    zoomControl: true
+    zoom: 10,
+    minZoom: 9,
+    maxZoom: 16,
+    maxBounds: mapBounds,
+    maxBoundsViscosity: 1,
+    zoomSnap: 0.5,
+    zoomDelta: 0.5,
+    wheelPxPerZoomLevel: 120,
+    zoomControl: true,
+    worldCopyJump: false
 });
 
 L.tileLayer('https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}.png?key=algTQ7Nhcq5z8k3FE0BE', {
     attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'  
 }).addTo(map);
 
+const HomeControl = L.Control.extend({
+    options: { position: "topleft" },
+    onAdd() {
+        const button = L.DomUtil.create("button", "map-home-control");
+        button.type = "button";
+        button.title = "Center map on my location";
+        button.textContent = "My Location";
+        L.DomEvent.disableClickPropagation(button);
+        L.DomEvent.on(button, "click", () => {
+            if (userLocation) map.setView([userLocation.lat, userLocation.lng], Math.max(map.getZoom(), 12));
+            else if (navigator.geolocation) {
+                // Fallback attempt if not initially loaded
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
+                        map.setView([userLocation.lat, userLocation.lng], 12);
+                    }
+                );
+            }
+        });
+        return button;
+    }
+});
+map.addControl(new HomeControl());
+
 // ==========================================
-// EXPANDED OPPORTUNITIES DATABASE
+// EXPANDED OPPORTUNITIES DATABASE (15 Total)
 // ==========================================
 const opportunitiesData = [
     {
@@ -504,10 +535,18 @@ const oppCountDisplay = document.getElementById("opp-count");
 const searchInput = document.getElementById("search-input");
 const categoryFilter = document.getElementById("category-filter");
 const radiusFilter = document.getElementById("radius-filter");
+const mapDistanceStatus = document.getElementById("map-distance-status");
 
 let markerGroup = L.layerGroup().addTo(map);
 let userLocation = null; 
 let currentRadiusCircle = null; 
+
+function formatDistance(coords) {
+    if (!userLocation) return "Distance unavailable";
+    const meters = map.distance(L.latLng(userLocation.lat, userLocation.lng), L.latLng(coords[0], coords[1]));
+    const miles = meters / 1609.34;
+    return `${miles < 1 ? miles.toFixed(2) : miles.toFixed(1)} miles away`;
+}
 
 // Modal generation function
 function openModal(id) {
@@ -523,7 +562,8 @@ function openModal(id) {
 
     const statusBadgeText = opp.isOpen ? "Accepting Volunteers" : "Currently Full";
     const statusClass = opp.isOpen ? "status-open" : "status-closed";
-    const applyDisabledClass = opp.isOpen ? "" : "disabled";
+    const applyDisabledClass = opp.isOpen && hasFullAccess ? "" : "disabled";
+    const applyLabel = !hasFullAccess ? "Verify email to apply" : (opp.isOpen ? "Apply via External Link" : "Applications Closed");
     const tasksListHtml = opp.responsibilities.map(t => `<li>${t}</li>`).join('');
 
     modalBody.innerHTML = `
@@ -566,10 +606,10 @@ function openModal(id) {
             <p>✉️ <a href="mailto:${opp.contactInfo}">${opp.contactInfo}</a></p>
         </div>
         <div class="modal-footer">
-            <a href="${opp.link}" target="_blank" rel="noopener" class="modal-apply-btn ${applyDisabledClass}">
-                ${opp.isOpen ? 'Apply via External Link' : 'Applications Closed'}
+            <a href="${opp.isOpen && hasFullAccess ? opp.link : '#'}" target="_blank" rel="noopener" class="modal-apply-btn ${applyDisabledClass}" ${!hasFullAccess ? 'aria-disabled="true"' : ''}>
+                ${applyLabel}
             </a>
-            <p class="modal-timestamp">Last Updated: June 2026</p>
+            <p class="modal-timestamp">Last Updated: August 2026</p>
         </div>
     `;
     modal.classList.add('active');
@@ -593,6 +633,11 @@ document.addEventListener('click', async function(e) {
             window.location.href = "login.html";
             return;
         }
+        if (!hasFullAccess) {
+            alert("Please verify your email address before saving opportunities.");
+            window.location.href = "dashboard.html";
+            return;
+        }
 
         const id = parseInt(starBtn.getAttribute('data-opp-id'), 10);
         const isCurrentlyStarred = userStarredIds.includes(id);
@@ -603,11 +648,15 @@ document.addEventListener('click', async function(e) {
                 // Remove from local array, update UI, and push removal to Firestore
                 userStarredIds = userStarredIds.filter(savedId => savedId !== id);
                 starBtn.textContent = '☆';
+                starBtn.setAttribute("aria-label", "Save opportunity");
+                starBtn.title = "Save opportunity";
                 await updateDoc(userRef, { starredOpportunities: arrayRemove(id) });
             } else {
                 // Add to local array, update UI, and push addition to Firestore
                 userStarredIds.push(id);
                 starBtn.textContent = '⭐';
+                starBtn.setAttribute("aria-label", "Remove from saved opportunities");
+                starBtn.title = "Remove saved opportunity";
                 await updateDoc(userRef, { starredOpportunities: arrayUnion(id) });
             }
         } catch (error) {
@@ -621,28 +670,37 @@ document.addEventListener('click', async function(e) {
 // RENDERING & FILTERING LOGIC
 // ==========================================
 function renderOpportunities(dataToRender) {
-if (oppCountDisplay) oppCountDisplay.textContent = dataToRender.length;
+    const visibleData = hasFullAccess ? dataToRender : dataToRender.slice(0, 3);
+    if (oppCountDisplay) oppCountDisplay.textContent = visibleData.length;
     if (listingsGrid) listingsGrid.innerHTML = '';
     markerGroup.clearLayers();
 
-    const visibleData = hasFullAccess ? dataToRender : dataToRender.slice(0, 3);
-
     visibleData.forEach(opp => {
-        // Render Map Marker
+        // Render Map Marker for Opportunity
         const marker = L.marker(opp.coords);
+
         const popupContent = `
           <div class="map-popup-card">
             <h3 class="popup-title">${opp.name}</h3>
             <span class="popup-category-tag">${opp.category}</span>
             <p class="popup-text"><strong>Status:</strong> ${opp.isOpen ? 'Accepting Volunteers' : 'Currently Full'}</p>
+            <p class="popup-text distance-label">📍 ${formatDistance(opp.coords)}</p>
             <p class="popup-text">📍 ${opp.address}</p>
             <hr class="popup-divider">
             <button class="btn-card full-width open-modal-btn" data-opp-id="${opp.id}">Learn More</button>
           </div>
         `;
         marker.bindPopup(popupContent);
+        if (userLocation) {
+            marker.bindTooltip(formatDistance(opp.coords), {
+                permanent: true,
+                direction: "top",
+                offset: [0, -12],
+                className: "distance-tooltip"
+            });
+        }
         markerGroup.addLayer(marker);
-
+    
         // Render Left-Side Card
         if (listingsGrid) {
             const statusBadgeClass = opp.isOpen ? "status-open" : "status-closed";
@@ -662,22 +720,21 @@ if (oppCountDisplay) oppCountDisplay.textContent = dataToRender.length;
               <div class="opp-card">
                 <div class="opp-img ${opp.imgClass || ''}" style="${dynamicBgStyle}">
                   <span class="category-tag ${statusBadgeClass}">${statusBadgeText}</span>
-                  
-                  
-
                 </div>
 
-                <div class="opp-content">
-                <button class="star-btn" data-opp-id="${opp.id}" style="position: absolute; top: 8px; right: 8px; background: rgba(255,255,255,0.9); border: 1px solid #ddd; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: transform 0.1s;">
-                    ${starIcon}
-                  </button>
+                <div class="opp-content" style="position: relative;">
+                    <button class="star-btn" data-opp-id="${opp.id}" aria-label="${userStarredIds.includes(opp.id) ? "Remove from saved opportunities" : "Save opportunity"}" title="${userStarredIds.includes(opp.id) ? "Remove saved opportunity" : "Save opportunity"}" style="position: absolute; top: 10px; right: 10px; background: rgba(255,255,255,0.9); border: 1px solid #ddd; border-radius: 50%; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.2rem; box-shadow: 0 2px 4px rgba(0,0,0,0.1); z-index: 2; transition: transform 0.1s;">
+                        ${starIcon}
+                    </button>
                   <h3>${opp.name}</h3>
+                  
                   <p class="org-name">${opp.category} &nbsp; ${verifiedBadge}</p>
                   
                   <p class="opp-description">${opp.description}</p>
 
                   <div class="opp-details">
                     <span>📍 ${opp.city}</span>
+                    <span class="distance-label">${formatDistance(opp.coords)}</span>
                     <span>⏱️ ${opp.hours}</span>
                     <span>📅 ${opp.commitment}</span>
                   </div>
@@ -697,14 +754,9 @@ if (oppCountDisplay) oppCountDisplay.textContent = dataToRender.length;
 
     if (!hasFullAccess && dataToRender.length > 3) {
         const hiddenCount = dataToRender.length - 3;
-        
-        // Adjust the messaging based on whether they are logged in but unverified, or not logged in at all
-        const promptTitle = isLoggedIn 
-            ? "Verify Your Email to Unlock" 
-            : "Unlock";
-            
+        const promptTitle = isLoggedIn ? "Verify Your Email to Unlock" : "Unlock";
         const promptMessage = isLoggedIn 
-            ? "Please check your inbox and verify your email to view the remaining volunteer events." 
+            ? "Please check your inbox and verify your email to view the remaining volunteer events, distances, and applications." 
             : "Create a free account and verify your email to view the remaining volunteer events and their map locations.";
 
         const loginPromptHTML = `
@@ -731,7 +783,7 @@ function applyFilters() {
         if (selectedRadius && userLocation) {
             const oppLatLng = L.latLng(opp.coords[0], opp.coords[1]);
             const userLatLng = L.latLng(userLocation.lat, userLocation.lng);
-            const distanceInMiles = map.distance(userLatLng, oppLatLng) * 0.000621371;
+            const distanceInMiles = map.distance(userLatLng, oppLatLng) / 1609.34;
             matchesRadius = distanceInMiles <= selectedRadius;
         }
 
@@ -744,7 +796,7 @@ function applyFilters() {
     }
 
     if (selectedRadius && userLocation) {
-        const radiusInMeters = selectedRadius / 0.000621371;
+        const radiusInMeters = selectedRadius * 1609.34;
         currentRadiusCircle = L.circle([userLocation.lat, userLocation.lng], {
             radius: radiusInMeters,
             color: '#1b4332',      
@@ -752,7 +804,17 @@ function applyFilters() {
             fillOpacity: 0.1,      
             weight: 2
         }).addTo(map);
-        map.fitBounds(currentRadiusCircle.getBounds(), { padding: [20, 20] });
+        map.fitBounds(currentRadiusCircle.getBounds(), { padding: [20, 20], maxZoom: 13 });
+    }
+
+    if (mapDistanceStatus) {
+        if (!userLocation) {
+            mapDistanceStatus.textContent = "Allow location access to see exact distances.";
+        } else if (selectedRadius) {
+            mapDistanceStatus.textContent = `Showing opportunities within ${selectedRadius} miles.`;
+        } else {
+            mapDistanceStatus.textContent = "Distances shown from your current location. Click a marker for details.";
+        }
     }
 
     renderOpportunities(filteredData);
@@ -790,6 +852,7 @@ if ("geolocation" in navigator) {
                 radius: 8, fillColor: "#007bff", color: "#fff", weight: 2, opacity: 1, fillOpacity: 0.8
             }).addTo(map);
             userMarker.bindPopup("<strong>You are here</strong>").openPopup();
+            map.setView([userLocation.lat, userLocation.lng], Math.min(Math.max(map.getZoom(), 11), 13));
             applyFilters();
         },
         (error) => { 

@@ -27,8 +27,22 @@ const opportunitiesData = [
     { id: 7, name: "Teal Diva", city: "Matthews, NC", commitment: "Flexible / Projects" }
 ];
 
-onAuthStateChanged(auth, (user) => {
+async function updateVerificationState(user) {
+    await user.reload();
+    const isVerified = user.emailVerified;
+    const warningBanner = document.getElementById("verify-warning");
+    if (warningBanner) warningBanner.style.display = isVerified ? "none" : "block";
+    const actionLinks = document.querySelectorAll('a[href="opportunities.html"]');
+    actionLinks.forEach((link) => {
+        link.classList.toggle("verification-required", !isVerified);
+        link.setAttribute("aria-label", isVerified ? "Find an opportunity" : "Verify your email to unlock opportunities");
+    });
+    return isVerified;
+}
+
+onAuthStateChanged(auth, async (user) => {
     if (user) {
+        await updateVerificationState(user);
         // --- Handle Email Verification Warning ---
         const warningBanner = document.getElementById("verify-warning");
         if (!user.emailVerified) {
@@ -42,7 +56,8 @@ onAuthStateChanged(auth, (user) => {
 
                     sendEmailVerification(user)
                     .then(() => {
-                        warningBanner.innerHTML = `✅ <strong>Link Sent!</strong> Please check your inbox and spam folder.`;
+                        const status = document.getElementById("verify-status");
+                        if (status) status.textContent = "Link sent! Please check your inbox and spam folder.";
                         warningBanner.style.backgroundColor = "rgba(46, 204, 113, 0.1)"; 
                         warningBanner.style.color = "#27ae60"; 
                         warningBanner.style.borderColor = "#2ecc71";
@@ -58,6 +73,14 @@ onAuthStateChanged(auth, (user) => {
         } else {
             if(warningBanner) warningBanner.style.display = "none";
         }
+
+        const refreshBtn = document.getElementById("refresh-verification-btn");
+        if (refreshBtn) refreshBtn.addEventListener("click", async () => {
+            refreshBtn.disabled = true;
+            await updateVerificationState(auth.currentUser);
+            refreshBtn.disabled = false;
+            if (auth.currentUser.emailVerified) window.location.reload();
+        });
         
        // --- Fetch User Data from Firestore ---
         const docRef = doc(db, "users", user.uid);

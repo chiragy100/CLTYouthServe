@@ -22,6 +22,7 @@ const passwordInput = document.getElementById("password");
 const errorBox = document.getElementById("error-message");
 const passwordGroup = document.getElementById("password-group");
 const forgotPasswordLink = document.getElementById("forgot-password-link");
+const loginForm = document.getElementById("login-form");
 
 // Helper function to clear individual input red glows when a user fixes them
 const inputs = [emailInput, passwordInput];
@@ -68,9 +69,10 @@ if (forgotPasswordLink) {
 // ==========================================
 // FORM SUBMISSION PIPELINE
 // ==========================================
-if (loginBtn) {
-    loginBtn.addEventListener("click", function(event) {
+if (loginForm) {
+    loginForm.addEventListener("submit", function(event) {
         event.preventDefault(); // Stop page reload
+        if (loginBtn) loginBtn.disabled = true;
 
         // 1. Reset UI state at the start of every click submit attempt
         if (errorBox) { errorBox.textContent = ""; errorBox.style.color = ""; }
@@ -86,6 +88,7 @@ if (loginBtn) {
         if (!email) {
             if (errorBox) errorBox.textContent = "Please enter your email address.";
             if (emailInput) emailInput.classList.add("invalid-field");
+            if (loginBtn) loginBtn.disabled = false;
             return;
         }
 
@@ -93,6 +96,7 @@ if (loginBtn) {
         if (!emailRegex.test(email)) {
             if (errorBox) errorBox.textContent = "Please enter a valid email address.";
             if (emailInput) emailInput.classList.add("invalid-field");
+            if (loginBtn) loginBtn.disabled = false;
             return;
         }
 
@@ -100,12 +104,16 @@ if (loginBtn) {
         // FORGOT PASSWORD PIPELINE
         // ==========================================
         if (isResetMode) {
-            sendPasswordResetEmail(auth, email)
+            sendPasswordResetEmail(auth, email, {
+                url: new URL("login.html", window.location.href).href,
+                handleCodeInApp: false
+            })
                 .then(() => {
                     if (errorBox) {
                         errorBox.style.color = "var(--emerald)"; // Ensure this matches your CSS
                         errorBox.textContent = "Reset link sent! Please check your inbox.";
                     }
+                    if (loginBtn) loginBtn.disabled = false;
                 })
                 .catch((error) => {
                     const errorCode = error.code;
@@ -117,6 +125,7 @@ if (loginBtn) {
                             errorBox.textContent = "An error occurred. Please try again later.";
                         }
                     }
+                    if (loginBtn) loginBtn.disabled = false;
                 });
             
             return; // EXIT here so it doesn't try to log in!
@@ -130,6 +139,7 @@ if (loginBtn) {
         if (!password) {
             if (errorBox) errorBox.textContent = "Please enter your password.";
             if (passwordInput) passwordInput.classList.add("invalid-field");
+            if (loginBtn) loginBtn.disabled = false;
             return;
         }
 
@@ -167,6 +177,7 @@ if (loginBtn) {
                         errorBox.textContent = "An unexpected login error occurred. Details: " + errorCode;
                     }
                 }
+                if (loginBtn) loginBtn.disabled = false;
             });
     });
 }

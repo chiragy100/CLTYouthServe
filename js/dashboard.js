@@ -24,7 +24,15 @@ const opportunitiesData = [
     { id: 4, name: "Union County Animal Services", city: "Monroe, NC", commitment: "Recurring" },
     { id: 5, name: "Senior Nutrition Program", city: "Monroe, NC", commitment: "Recurring" },
     { id: 6, name: "Union County Library", city: "Monroe, NC", commitment: "One-Time / Flexible" },
-    { id: 7, name: "Teal Diva", city: "Matthews, NC", commitment: "Flexible / Projects" }
+    { id: 7, name: "Teal Diva", city: "Matthews, NC", commitment: "Flexible / Projects" },
+    { id: 8, name: "Greater Matthews Habitat for Humanity", city: "Matthews, NC", commitment: "Recurring" },
+    { id: 9, name: "Common Heart", city: "Indian Trail, NC", commitment: "Recurring" },
+    { id: 10, name: "Bright Blessings", city: "Matthews, NC", commitment: "Recurring" },
+    { id: 11, name: "Heart For Monroe", city: "Monroe, NC", commitment: "Recurring / Flexible" },
+    { id: 12, name: "Community Shelter of Union County", city: "Monroe, NC", commitment: "Recurring / Shifts" },
+    { id: 13, name: "Humane Society of Union County", city: "Monroe, NC", commitment: "Flexible / Projects" },
+    { id: 14, name: "Second Harvest Food Bank of Metrolina", city: "Charlotte, NC", commitment: "Recurring / Shifts" },
+    { id: 15, name: "Habitat for Humanity of the Charlotte Region", city: "Charlotte, NC", commitment: "Recurring / Shifts" }
 ];
 
 async function updateVerificationState(user) {

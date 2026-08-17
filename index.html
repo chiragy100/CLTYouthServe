@@ -1,11 +1,26 @@
-<!--Framework 
-    Index.html = landing page
+<!--
+  FILE PURPOSE:
+  This file serves as the main landing page (index.html) for the CLT YouthServe website. It welcomes 
+  visitors, gives search engines information about the organization, and provides navigation links to other areas.
+
+  FILES REFERENCED IN THIS FILE:
+  - Stylesheets (CSS): css/style.css, css/home.css
+  - Images: images/CLT Logo.png, images/CLT Map1.png, images/Interactive .png, /images/Nonprofits.png, images/Verification.png
+  - Web Pages (HTML): index.html, opportunities.html, login.html, signup.html
+  - JavaScript: js/source.js
 -->
+
 <!doctype html>
 <html lang="en">
+  <!-- THE HEAD SECTION: Contains background setup, SEO (search engine info), fonts, and styles. Invisible on the page. -->
   <head>
+    <!-- Sets character encoding so text and special characters display correctly -->
     <meta charset="UTF-8" />
+    
+    <!-- Ensures the page renders appropriately on mobile devices, tablets, and desktop screens -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- Google Analytics: Tracks website visitor metrics and activity -->
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-7LWN04E6QL"
@@ -19,10 +34,13 @@
 
       gtag("config", "G-7LWN04E6QL");
     </script>
-    <!--The tab title-->
+
+    <!-- Page Title: Displayed on the browser tab -->
     <title>
       CLT YouthServe | Student Volunteering & Community Service in Charlotte
     </title>
+
+    <!-- Search Engine Optimization (SEO) Metadata: Summarizes the website for search engines like Google -->
     <meta
       name="description"
       content="Find verified youth and high school volunteer opportunities in Charlotte, NC. Track your community service hours for NHS, Beta Club, and college applications with CLT YouthServe."
@@ -33,6 +51,7 @@
     />
     <link rel="canonical" href="https://cltyouthserve.org/" />
 
+    <!-- Open Graph Metadata: Controls how the website preview card appears when shared on social media -->
     <meta
       property="og:title"
       content="CLT YouthServe | Charlotte Student Volunteering"
@@ -47,15 +66,21 @@
       property="og:image"
       content="https://cltyouthserve.org/images/CLT%20Logo.png"
     />
+
+    <!-- Favicon: The small icon displayed next to the page title on the browser tab -->
     <link rel="icon" type="image/png" href="images/CLT Logo.png" />
-    <!--Fonts-->
+
+    <!-- External Google Fonts used for text styling throughout the site -->
     <link
       href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Open+Sans:wght@400;600&display=swap"
       rel="stylesheet"
     />
-    <!--Design-->
+
+    <!-- CSS Style Sheets: Controls colors, layouts, margins, and design elements -->
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/home.css" />
+
+    <!-- Structured Data (JSON-LD): Helps search engines recognize this organization as an Educational Organization -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
@@ -74,8 +99,13 @@
       }
     </script>
   </head>
+
+  <!-- THE BODY SECTION: Contains all visible elements shown to users on the screen -->
   <body>
+
+    <!-- Navigation Bar: The top menu banner allowing users to browse the site -->
     <nav class="navbar">
+      <!-- Website Logo and Brand Name (links back to index.html) -->
       <div class="logo">
         <a href="index.html">
           <img
@@ -86,8 +116,8 @@
         >
       </div>
 
+      <!-- Navigation Links and Buttons (opportunities, sign in, join now) -->
       <div class="nav-links">
-        <!--Mini Tabs-->
         <a href="opportunities.html">Opportunities</a>
         <div class="nav-auth" id="auth-menu">
           <a href="login.html" class="login">Sign In</a>
@@ -95,9 +125,11 @@
         </div>
       </div>
     </nav>
-    <!--================================================== TOP SECTION ==================================================-->
+
+    <!-- HERO SECTION: The large main section at the top of the homepage -->
     <header class="hero">
       <div class="hero-container">
+        <!-- Main headline, description, and primary call-to-action button -->
         <div class="hero-text">
           <span class="location-tag">Charlotte, NC — 2026</span>
           <h1>
@@ -114,10 +146,10 @@
             <a href="opportunities.html" class="btn-solid"
               >Find Opportunities</a
             >
-            <!--<button class="btn-outline">For Nonprofits</button>-->
           </div>
         </div>
 
+        <!-- Visual element displaying a map image on the side of the header -->
         <div class="hero-map-visual">
           <div class="map-container">
             <div class="map-overlay"></div>
@@ -130,11 +162,14 @@
         </div>
       </div>
     </header>
-    <!--================================================== BOTTOM SECTION ==================================================-->
+
+    <!-- FEATURE SECTION: Grid layout showing three key benefits/features for students -->
     <section id="opportunities" class="feature-section">
       <div class="container">
         <h2 class="section-title">Built for the Students</h2>
         <div class="feature-grid">
+
+          <!-- Feature 1: Interactive Discovery -->
           <div class="feature-card">
             <div class="img-wrapper">
               <img
@@ -148,6 +183,8 @@
               care about.
             </p>
           </div>
+
+          <!-- Feature 2: Verified Nonprofits -->
           <div class="feature-card">
             <div class="img-wrapper">
               <img
@@ -161,6 +198,8 @@
               student experience.
             </p>
           </div>
+
+          <!-- Feature 3: One-Click Verification (marked as "Coming Soon") -->
           <div class="feature-card">
             <div class="coming-soon">
               <span class="icon">🚧</span>
@@ -179,10 +218,12 @@
               applications.
             </p>
           </div>
+
         </div>
       </div>
     </section>
 
+    <!-- JavaScript File Import: Loads external dynamic functionality for the page -->
     <script type="module" src="js/source.js"></script>
   </body>
 </html>

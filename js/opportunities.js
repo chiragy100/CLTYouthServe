@@ -1,12 +1,19 @@
 
-import opportunitiesData from "./opportunitiesData.js";
-
 // ==========================================
 // FIREBASE AUTHENTICATION & DATABASE SETUP
 // ==========================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+import {
+    getFirestore,
+    collection,
+    getDocs,
+    doc,
+    getDoc,
+    updateDoc,
+    arrayUnion,
+    arrayRemove
+} from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyCO-AmNN7QO_9wbqNq9nR1e_XYBdlRSLVg",
@@ -23,11 +30,33 @@ const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
+// Load opportunities from Firestore
+async function loadOpportunities() {
+    try {
+        const opportunitiesSnapshot = await getDocs(
+            collection(db, "opportunities")
+        );
+
+        opportunitiesData = opportunitiesSnapshot.docs.map(docSnap => {
+            return docSnap.data();
+        });
+
+        console.log(
+            `Loaded ${opportunitiesData.length} opportunities from Firestore.`
+        );
+
+    } catch (error) {
+        console.error("Error loading opportunities:", error);
+    }
+}
+
 // Global state
 let isLoggedIn = false;
 let hasFullAccess = false; 
 let currentUser = null;
-let userStarredIds = []; 
+let userStarredIds = [];
+// Opportunities loaded from Firestore
+let opportunitiesData = [];
 
 // Listen for actual Firebase login state changes
 onAuthStateChanged(auth, async (user) => {
@@ -416,8 +445,12 @@ radiusFilter.addEventListener('change', () => {
 });
 
 // Initial Render
-renderOpportunities(opportunitiesData);
-setTimeout(() => { map.invalidateSize(); }, 200);
+loadOpportunities().then(() => {
+    applyFilters();
+    setTimeout(() => {
+        map.invalidateSize();
+    }, 200);
+});
 
 // Modal Close Logic
 const modalOverlay = document.getElementById('opp-modal');

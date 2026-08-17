@@ -1,0 +1,39 @@
+{
+  "organizationName": "Matthews Help Center",
+  "category": "Community Support",
+  "address": "119 N Ames Street, Matthews, North Carolina, United States, 28105",
+  "minimumAge": 14,
+  "backgroundCheckRequired": null,
+  "trainingRequired": null,
+  "recurringOpportunity": true,
+  "schedule": "Backporch Treasures Store: Monday - Saturday. 9 a.m.-1 p.m.; 1 p.m.-5 p.m. Garage: Monday - Saturday. 7-9 a.m.; 11 a.m.-1 p.m.; 9-11 a.m.; 3-5 p.m.",
+  "shiftLength": "4 hours for individuals; 2 hours for group events",
+  "description": "Matthews Help Center offers weekly volunteer opportunities in its Backporch Treasures Store and Garage, with 4‑hour individual shifts and 2‑hour group events, serving neighbors in need.",
+  "volunteerRoles": [
+    "Cashier",
+    "Clothing Pricer",
+    "Art Pricer",
+    "Linens Pricer",
+    "Garage Receiver",
+    "Bagger",
+    "Housewares Pricer",
+    "Antiques and Collectibles Pricer",
+    "Holiday Pricer",
+    "Garage Pricer",
+    "Toys",
+    "Pricer Art Pricer",
+    "Shoes Pricer"
+  ],
+  "requirements": [
+    "Minimum age 14 years old",
+    "Not able to accommodate court-ordered hours",
+    "Group volunteers must fill out a group application form",
+    "Summer student program is full; no student positions available this summer"
+  ],
+  "contactName": null,
+  "contactEmail": "melinda@matthewshelpcenter.org",
+  "contactPhone": "704-847-8383",
+  "applicationMethod": "Fill out a group application form for group volunteering",
+  "applicationUrl": null,
+  "sourceUrl": "https://matthewshelpcenter.org/volunteer"
+}

@@ -1,0 +1,32 @@
+{
+  "organizationName": "Common Heart",
+  "category": "Community Support",
+  "address": "Indian Trail Center, 116 Business Park Dr, Indian Trail, NC 28079",
+  "minimumAge": null,
+  "backgroundCheckRequired": null,
+  "trainingRequired": true,
+  "recurringOpportunity": true,
+  "schedule": "Multiple times per week, morning, afternoon, and evening hours.",
+  "shiftLength": null,
+  "description": "Common Heart offers a variety of volunteer opportunities at its Indian Trail Center and food pantries across Union County, including warehouse work, food pantry distribution, grocery rescue, cupboard ally deliveries, administrative support, and special event assistance.",
+  "volunteerRoles": [
+    "Morning/Afternoon Warehouse Volunteers",
+    "Evening and Morning Food Pantries",
+    "Grocery Rescue Team",
+    "Cupboard Ally Volunteers",
+    "Administrative / Front Office Volunteers",
+    "Special Events Volunteers"
+  ],
+  "requirements": [
+    "All ages are welcome to volunteer.",
+    "Volunteers under 14 must be accompanied by a parent or guardian who is also a registered volunteer and signed up for the same volunteer opportunity.",
+    "Volunteers under 18 must have a parent or guardian co‑sign the terms and conditions within their volunteer profile.",
+    "Civil Rights Training Video must be completed before the first volunteer opportunity and annually thereafter."
+  ],
+  "contactName": "Riane Maltais",
+  "contactEmail": "volunteer@commonheart.org",
+  "contactPhone": null,
+  "applicationMethod": "Sign up through the Common Heart website.",
+  "applicationUrl": null,
+  "sourceUrl": "https://commonheart.org/volunteer/"
+}

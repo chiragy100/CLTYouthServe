@@ -1,7 +1,21 @@
+/*
+  FILE PURPOSE:
+  This module (bot/extractOpportunity.js) formats raw webpage text and source URLs into a strict AI prompt instruction set, 
+  sends a request to the Cloudflare Worker AI service, and returns a validated JSON object containing structured volunteer 
+  opportunity details.
+
+  FILES REFERENCED IN THIS FILE:
+  - Associated Bot Scripts: Imported by bot/runOpportunityPipeline.js and bot/testExtraction.js to parse raw webpage text.
+  - External API Endpoint: https://cltyouthserve-ai.chiragy100.workers.dev/
+*/
+
+// Endpoint URL for the custom Cloudflare Worker running the AI extraction model
 const AI_WORKER_URL =
     "https://cltyouthserve-ai.chiragy100.workers.dev/";
 
+// Main asynchronous function to extract structured JSON data from web text via AI
 export async function extractOpportunity(pageText, sourceUrl) {
+    // Construct the structured prompt defining strict parsing rules, category options, and JSON schema output
     const prompt = `
 You are a highly accurate data extraction system for CLT YouthServe.
 
@@ -194,6 +208,7 @@ WEBPAGE TEXT
 ${pageText}
 `;
 
+    // Step 1: Send constructed prompt via HTTP POST request to the Cloudflare AI Worker
     const response = await fetch(AI_WORKER_URL, {
         method: "POST",
         headers: {
@@ -204,27 +219,31 @@ ${pageText}
         })
     });
 
+    // Check HTTP status code
     if (!response.ok) {
         throw new Error(
             `AI Worker returned HTTP ${response.status}`
         );
     }
 
+    // Step 2: Parse response JSON structure
     const result = await response.json();
 
-const message = result?.choices?.[0]?.message;
-const content = message?.content;
+    const message = result?.choices?.[0]?.message;
+    const content = message?.content;
 
-if (!content) {
-    console.error("\n========== AI RESPONSE DEBUG ==========\n");
-    console.error(JSON.stringify(result, null, 2));
-    console.error("\n=======================================\n");
+    // Error handling if response text is missing
+    if (!content) {
+        console.error("\n========== AI RESPONSE DEBUG ==========\n");
+        console.error(JSON.stringify(result, null, 2));
+        console.error("\n=======================================\n");
 
-    throw new Error(
-        "AI returned no message content. The model may have hit its reasoning/token limit."
-    );
-}
+        throw new Error(
+            "AI returned no message content. The model may have hit its reasoning/token limit."
+        );
+    }
 
+    // Step 3: Parse AI message string into a JavaScript Object
     try {
         return JSON.parse(content);
     } catch {

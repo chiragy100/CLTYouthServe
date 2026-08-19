@@ -1,6 +1,20 @@
+/*
+  FILE PURPOSE:
+  This module (bot/validator.js) provides a validation utility function used by administrative AI scraping 
+  or data-ingestion bots. It inspects raw AI-extracted opportunity objects to ensure required fields, proper data types, 
+  and valid URL formats before writing data to the system.
+
+  FILES REFERENCED IN THIS FILE:
+  - Associated Bot Scripts: Imported by administrative testing scripts and data ingestion pipelines (e.g., bot/scraper.js or test-validator.js) 
+    to verify extracted data structure before database insertion.
+    node bot/runOpportunityPipeline.js
+*/
+
+// Exports function to inspect and validate the structure of an AI-extracted opportunity object
 export function validateOpportunity(opportunity) {
     const errors = [];
 
+    // Step 1: Ensure input exists and is a valid object
     if (!opportunity || typeof opportunity !== "object") {
         return {
             valid: false,
@@ -8,7 +22,7 @@ export function validateOpportunity(opportunity) {
         };
     }
 
-    // Required fields
+    // Step 2: Define and check essential required properties
     const requiredFields = [
         "organizationName",
         "sourceUrl"
@@ -24,7 +38,9 @@ export function validateOpportunity(opportunity) {
         }
     }
 
-    // Type checks
+    // Step 3: Validate field data types and nullability
+
+    // Age requirement check
     if (
         opportunity.minimumAge !== null &&
         typeof opportunity.minimumAge !== "number"
@@ -32,6 +48,7 @@ export function validateOpportunity(opportunity) {
         errors.push("minimumAge must be a number or null.");
     }
 
+    // Background check flag check
     if (
         opportunity.backgroundCheckRequired !== null &&
         typeof opportunity.backgroundCheckRequired !== "boolean"
@@ -41,6 +58,7 @@ export function validateOpportunity(opportunity) {
         );
     }
 
+    // Training flag check
     if (
         opportunity.trainingRequired !== null &&
         typeof opportunity.trainingRequired !== "boolean"
@@ -50,6 +68,7 @@ export function validateOpportunity(opportunity) {
         );
     }
 
+    // Recurring commitment flag check
     if (
         opportunity.recurringOpportunity !== null &&
         typeof opportunity.recurringOpportunity !== "boolean"
@@ -59,6 +78,7 @@ export function validateOpportunity(opportunity) {
         );
     }
 
+    // Array type checks for roles and requirements
     if (!Array.isArray(opportunity.volunteerRoles)) {
         errors.push("volunteerRoles must be an array.");
     }
@@ -67,7 +87,7 @@ export function validateOpportunity(opportunity) {
         errors.push("requirements must be an array.");
     }
 
-    // Basic URL validation
+    // Step 4: Validate URL structure for source link
     if (typeof opportunity.sourceUrl === "string") {
         try {
             new URL(opportunity.sourceUrl);
@@ -76,6 +96,7 @@ export function validateOpportunity(opportunity) {
         }
     }
 
+    // Return validation result summary
     return {
         valid: errors.length === 0,
         errors

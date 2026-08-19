@@ -1,6 +1,7 @@
 /*
 
 node bot/runOpportunityPipeline.js
+commenting AI: https://gemini.google.com/app/4060166ce5e4e3a5?utm_source=deepmind.google&utm_medium=referral&utm_campaign=gdm&utm_content=
   FILE PURPOSE:
   This script (bot/runOpportunityPipeline.js) serves as the main automated scraper pipeline runner. 
   It iterates over a list of source organizations, discovers their volunteer landing pages, scrapes page body text using Playwright, 

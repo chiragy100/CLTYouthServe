@@ -1,6 +1,20 @@
+/*
+  FILE PURPOSE:
+  This script (js/login.js) manages user sign-in and password recovery functionality for the website. 
+  It handles form input validation, toggles the user interface dynamically between sign-in and password reset modes, 
+  sends password reset emails via Firebase Auth, and authenticates existing users before redirecting them to their dashboard.
+
+  FILES REFERENCED IN THIS FILE:
+  - External Firebase Libraries: firebase-app.js, firebase-auth.js (loaded via Google CDN)
+  - Associated HTML Page: login.html
+  - Redirection Target: dashboard.html
+*/
+
+// Import required Firebase modular SDK functions for app initialization and authentication
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 
+// Firebase credentials configuration object
 const firebaseConfig = {
   apiKey: "AIzaSyCO-AmNN7QO_9wbqNq9nR1e_XYBdlRSLVg",
   authDomain: "clt-youthserve.firebaseapp.com",
@@ -11,11 +25,11 @@ const firebaseConfig = {
   measurementId: "G-7LWN04E6QL"
 };
 
-// Initialize Firebase
+// Initialize Firebase App and Auth services
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 
-// Global Element Selectors
+// Global DOM Element Selectors from login.html
 const loginBtn = document.getElementById("login-btn");
 const emailInput = document.getElementById("email");
 const passwordInput = document.getElementById("password");
@@ -24,7 +38,7 @@ const passwordGroup = document.getElementById("password-group");
 const forgotPasswordLink = document.getElementById("forgot-password-link");
 const loginForm = document.getElementById("login-form");
 
-// Helper function to clear individual input red glows when a user fixes them
+// Input Listener: Clears red error outlines dynamically as the user types/edits form fields
 const inputs = [emailInput, passwordInput];
 inputs.forEach(input => {
     if (input) {
@@ -34,30 +48,30 @@ inputs.forEach(input => {
     }
 });
 
-// State tracker to know if we are logging in or resetting a password
+// State flag tracking whether form is in standard "Sign In" mode or "Forgot Password" mode
 let isResetMode = false;
 
 // ==========================================
-// UI TOGGLE LOGIC
+// 1. UI TOGGLE LOGIC (FORGOT PASSWORD SWITCH)
 // ==========================================
 if (forgotPasswordLink) {
     forgotPasswordLink.addEventListener("click", function(event) {
-        event.preventDefault(); // Stop the link from jumping the page
+        event.preventDefault(); // Prevents link jump anchor behavior
         
-        isResetMode = !isResetMode; // Toggle the state
+        isResetMode = !isResetMode; // Toggle mode boolean state
 
-        // Clear any lingering errors/red outlines
+        // Clear existing error state messages and field outlines
         if (errorBox) { errorBox.textContent = ""; errorBox.style.color = ""; }
         inputs.forEach(input => { if (input) input.classList.remove("invalid-field"); });
 
         if (isResetMode) {
-            // Morph into Forgot Password UI
+            // Morph view into "Forgot Password" mode: Hide password input, update button labels
             passwordGroup.style.display = "none";
             loginBtn.textContent = "Send Reset Link";
             forgotPasswordLink.textContent = "Back to Sign In";
             if (passwordInput) passwordInput.removeAttribute("required");
         } else {
-            // Revert to Sign In UI
+            // Revert view to standard "Sign In" mode
             passwordGroup.style.display = "block"; 
             loginBtn.textContent = "Sign In";
             forgotPasswordLink.textContent = "Forgot Password?";
@@ -67,24 +81,24 @@ if (forgotPasswordLink) {
 }
 
 // ==========================================
-// FORM SUBMISSION PIPELINE
+// 2. FORM SUBMISSION PIPELINE
 // ==========================================
 if (loginForm) {
     loginForm.addEventListener("submit", function(event) {
-        event.preventDefault(); // Stop page reload
-        if (loginBtn) loginBtn.disabled = true;
+        event.preventDefault(); // Prevents default form submission and page reloads
+        if (loginBtn) loginBtn.disabled = true; // Disable button to block duplicate submissions
 
-        // 1. Reset UI state at the start of every click submit attempt
+        // Reset UI alerts and field highlights prior to processing
         if (errorBox) { errorBox.textContent = ""; errorBox.style.color = ""; }
         inputs.forEach(input => {
             if (input) input.classList.remove("invalid-field");
         });
 
-        // 2. Grab current values
+        // Extract input values and trim email whitespace
         const email = emailInput ? emailInput.value.trim() : "";
         const password = passwordInput ? passwordInput.value : "";
 
-        // 3. Email Validation (Required for BOTH Login and Reset modes)
+        // Check 1: Verify email presence (Required for both login & reset flows)
         if (!email) {
             if (errorBox) errorBox.textContent = "Please enter your email address.";
             if (emailInput) emailInput.classList.add("invalid-field");
@@ -92,6 +106,7 @@ if (loginForm) {
             return;
         }
 
+        // Check 2: Verify email format validity via regular expression
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             if (errorBox) errorBox.textContent = "Please enter a valid email address.";
@@ -101,7 +116,7 @@ if (loginForm) {
         }
 
         // ==========================================
-        // FORGOT PASSWORD PIPELINE
+        // FORGOT PASSWORD EXECUTION ROUTE
         // ==========================================
         if (isResetMode) {
             sendPasswordResetEmail(auth, email, {
@@ -110,7 +125,7 @@ if (loginForm) {
             })
                 .then(() => {
                     if (errorBox) {
-                        errorBox.style.color = "var(--emerald)"; // Ensure this matches your CSS
+                        errorBox.style.color = "var(--emerald)";
                         errorBox.textContent = "Reset link sent! Please check your inbox.";
                     }
                     if (loginBtn) loginBtn.disabled = false;
@@ -128,14 +143,14 @@ if (loginForm) {
                     if (loginBtn) loginBtn.disabled = false;
                 });
             
-            return; // EXIT here so it doesn't try to log in!
+            return; // Terminate execution here so form does not proceed to login execution
         }
 
         // ==========================================
-        // LOGIN PIPELINE
+        // STANDARD LOGIN EXECUTION ROUTE
         // ==========================================
         
-        // 4. Password validation (Only needed if logging in)
+        // Check 3: Verify password presence for sign-in attempt
         if (!password) {
             if (errorBox) errorBox.textContent = "Please enter your password.";
             if (passwordInput) passwordInput.classList.add("invalid-field");
@@ -143,7 +158,7 @@ if (loginForm) {
             return;
         }
 
-        // 5. Fire Login Request
+        // Authenticate credentials against Firebase Auth
         signInWithEmailAndPassword(auth, email, password)
             .then((userCredential) => {
                 const user = userCredential.user;
@@ -154,12 +169,13 @@ if (loginForm) {
                     errorBox.textContent = "Success! Logging you in...";
                 }
 
-                // Redirect to dashboard
+                // Redirect user to dashboard page upon successful authentication
                 setTimeout(() => {
                     window.location.href = "dashboard.html";
                 }, 1500);
             })
             .catch((error) => {
+                // Firebase Login Error Handler
                 const errorCode = error.code;
                 console.error("Login Error:", errorCode);
 

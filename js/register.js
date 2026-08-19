@@ -1,8 +1,20 @@
+/*
+  FILE PURPOSE:
+  This file serves as the user registration logic script (js/register.js). It handles front-end form validation 
+  for the sign-up page, creates new user authentication accounts in Firebase, writes initial profile data 
+  (name, email, age, role) to the Firestore database, and dispatches email verification links.
+
+  FILES REFERENCED IN THIS FILE:
+  - External Firebase Libraries: firebase-app.js, firebase-auth.js, firebase-firestore.js (via Google CDN)
+  - HTML Web Pages: signup.html, login.html, dashboard.html
+*/
+
+// Import required Firebase modules for App initialization, Authentication, and Firestore database operations
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, createUserWithEmailAndPassword, sendEmailVerification } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-// 1. IMPORT FIRESTORE FUNCTIONS
 import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
+// Firebase credentials configuration object
 const firebaseConfig = {
   apiKey: "AIzaSyCO-AmNN7QO_9wbqNq9nR1e_XYBdlRSLVg",
   authDomain: "clt-youthserve.firebaseapp.com",
@@ -13,12 +25,12 @@ const firebaseConfig = {
   measurementId: "G-7LWN04E6QL"
 };
 
-// Initialize Firebase
+// Initialize Firebase services
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-const db = getFirestore(app); // 2. INITIALIZE DATABASE
+const db = getFirestore(app);
 
-// Global Element Selectors
+// Global DOM Element Selectors from signup.html
 const submitBtn = document.getElementById("submit-btn");
 const confirmPasswordInput = document.getElementById("confirm-password");
 const passwordInput = document.getElementById("password");
@@ -28,7 +40,7 @@ const dobInput = document.getElementById("dob");
 const errorBox = document.getElementById("error-message");
 const signupForm = document.getElementById("signup-form");
 
-// Helper function to clear individual input red glows when a user fixes them
+// Helper listener: Clears red error borders on inputs as soon as the user starts typing/editing
 const inputs = [emailInput, passwordInput, confirmPasswordInput, fullnameInput, dobInput];
 inputs.forEach(input => {
     if (input) {
@@ -38,18 +50,19 @@ inputs.forEach(input => {
     }
 });
 
+// FORM SUBMISSION EVENT LISTENER
 if (signupForm) {
   signupForm.addEventListener("submit", function(event) {
-      event.preventDefault(); 
-      if (submitBtn) submitBtn.disabled = true;
+      event.preventDefault(); // Prevents default browser page reload
+      if (submitBtn) submitBtn.disabled = true; // Prevents double submission clicks
 
-      // Reset UI state at the start of every click submit attempt
+      // Resets error messages and field highlights from previous attempts
       if (errorBox) errorBox.textContent = "";
       inputs.forEach(input => {
           if (input) input.classList.remove("invalid-field");
       });
 
-      // Grab current values and trim whitespace
+      // Extract form input values and strip whitespace
       const email = emailInput ? emailInput.value.trim() : "";
       const password = passwordInput ? passwordInput.value : "";
       const confirmPassword = confirmPasswordInput ? confirmPasswordInput.value : "";
@@ -57,9 +70,10 @@ if (signupForm) {
       const dob = dobInput ? dobInput.value : "";
 
       // ==========================================
-      // FRONT-END VALIDATION (CATCH ALL EMPTY FIELDS)
+      // FRONT-END VALIDATION CHECKS
       // ==========================================
       
+      // Check 1: Full Name field empty
       if (!fullname) {
           if (errorBox) errorBox.textContent = "Please enter your full name.";
           if (fullnameInput) fullnameInput.classList.add("invalid-field");
@@ -67,6 +81,7 @@ if (signupForm) {
           return;
       }
 
+      // Check 2: Email field empty
       if (!email) {
           if (errorBox) errorBox.textContent = "Please enter your email address.";
           if (emailInput) emailInput.classList.add("invalid-field");
@@ -74,7 +89,7 @@ if (signupForm) {
           return;
       }
 
-      // Simple regex check for valid email formatting
+      // Check 3: Email format validity using regular expression pattern
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
           if (errorBox) errorBox.textContent = "Please enter a valid email address.";
@@ -83,6 +98,7 @@ if (signupForm) {
           return;
       }
 
+      // Check 4: Date of Birth field empty
       if (!dob) {
           if (errorBox) errorBox.textContent = "Please select your date of birth.";
           if (dobInput) dobInput.classList.add("invalid-field");
@@ -90,7 +106,7 @@ if (signupForm) {
           return;
       }
 
-      // Front-end local check for password length (Stops execution immediately if under 6)
+      // Check 5: Password minimum length requirement (at least 6 characters)
       if (password.length < 6) {
           if (errorBox) errorBox.textContent = "Password must be at least 6 characters long.";
           if (passwordInput) passwordInput.classList.add("invalid-field");
@@ -98,7 +114,7 @@ if (signupForm) {
           return;
       }
 
-      // Password Match Validation Check
+      // Check 6: Password confirmation equality check
       if (password !== confirmPassword) {
           if (errorBox) errorBox.textContent = "Passwords do not match!";
           if (confirmPasswordInput) confirmPasswordInput.classList.add("invalid-field");
@@ -107,16 +123,16 @@ if (signupForm) {
       }
 
       // ==========================================
-      // FIREBASE PROCESSING PIPELINE
+      // FIREBASE CREATION & DATA RECORDING PIPELINE
       // ==========================================
       
-      // 3. CREATE USER (Auth)
+      // Step A: Create authentication user in Firebase Auth
       createUserWithEmailAndPassword(auth, email, password)
           .then((userCredential) => {
               const user = userCredential.user;
               console.log("User created:", user.uid);
 
-              // 4. SAVE EXTRA DETAILS TO DATABASE (Firestore)
+              // Step B: Prepare default user document object for database storage
               const userData = {
                   fullName: fullname,
                   email: email,
@@ -126,16 +142,16 @@ if (signupForm) {
                   serviceHours: 0 
               };
 
-              // Write to the database
+              // Step C: Save user document in Firestore under 'users' collection with user's UID
               setDoc(doc(db, "users", user.uid), userData)
                 .then(() => {
                     console.log("User data stored in Firestore");
                     
-                    // 5. SEND VERIFICATION & REDIRECT
-      sendEmailVerification(user, {
-          url: new URL("login.html", window.location.href).href,
-          handleCodeInApp: false
-      }).then(() => {
+                    // Step D: Send email verification link and redirect to dashboard
+                    sendEmailVerification(user, {
+                        url: new URL("login.html", window.location.href).href,
+                        handleCodeInApp: false
+                    }).then(() => {
                         if (errorBox) {
                             errorBox.style.color = "var(--emerald)"; 
                             errorBox.textContent = "Account created! Verification email sent. Redirecting...";
@@ -150,17 +166,18 @@ if (signupForm) {
                 })
                 .catch((error) => {
                     console.error("Error writing to DB:", error);
-              if (errorBox) errorBox.textContent = "Account created, but failed to save profile data.";
-              if (submitBtn) submitBtn.disabled = false;
+                    if (errorBox) errorBox.textContent = "Account created, but failed to save profile data.";
+                    if (submitBtn) submitBtn.disabled = false;
                 });
 
           })
           .catch((error) => {
+              // Firebase Authentication Error Handler
               const errorCode = error.code;
               console.error("Firebase Auth Error:", errorCode, error.message);
               
               if (errorBox) {
-                  // User-friendly custom responses hiding raw system code
+                  // User-friendly custom responses hiding raw system codes
                   if (errorCode === 'auth/email-already-in-use') {
                       errorBox.textContent = "That email is already registered. Please sign in instead.";
                       if (emailInput) emailInput.classList.add("invalid-field");
@@ -170,7 +187,6 @@ if (signupForm) {
                   } else if (errorCode === 'auth/operation-not-allowed') {
                       errorBox.textContent = "Email/Password sign-up is currently disabled.";
                   } else {
-                      // Fallback catch-all error message structure keeping details safe at the end
                       errorBox.textContent = "An unexpected registration error occurred. Details: " + errorCode;
                   }
               }

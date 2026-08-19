@@ -1,3 +1,17 @@
+/*
+  FILE PURPOSE:
+  This script (js/opportunities.js) powers the main interactive logic on the "Find Opportunities" page. 
+  It loads volunteer opportunities from Firebase Firestore, initializes the Leaflet interactive map with user 
+  geolocation support, handles live filtering and distance calculations, renders opportunity cards and map markers, 
+  manages the details modal, and handles saving/starring opportunities to the user's Firestore profile.
+
+  Currently all opportunities are being displayed from the firestore and ot opportunitiesData.js
+
+  FILES REFERENCED IN THIS FILE:
+  - External Libraries: Firebase App, Auth, Firestore SDKs; Leaflet JS (loaded via CDN on the page)
+  - Associated HTML Page: opportunities.html
+  - Redirection Routes: login.html, dashboard.html
+*/
 
 // ==========================================
 // FIREBASE AUTHENTICATION & DATABASE SETUP
@@ -15,6 +29,7 @@ import {
     arrayRemove
 } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
+// Firebase credentials configuration object
 const firebaseConfig = {
   apiKey: "AIzaSyCO-AmNN7QO_9wbqNq9nR1e_XYBdlRSLVg",
   authDomain: "clt-youthserve.firebaseapp.com",
@@ -25,12 +40,12 @@ const firebaseConfig = {
   measurementId: "G-7LWN04E6QL"
 };
 
-// Initialize Firebase
+// Initialize Firebase services
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Load opportunities from Firestore
+// Fetches all volunteer opportunity records from the Firestore database
 async function loadOpportunities() {
     try {
         const opportunitiesSnapshot = await getDocs(
@@ -50,22 +65,22 @@ async function loadOpportunities() {
     }
 }
 
-// Global state
+// Global application state variables
 let isLoggedIn = false;
 let hasFullAccess = false; 
 let currentUser = null;
 let userStarredIds = [];
-// Opportunities loaded from Firestore
+// Array holding opportunities loaded from Firestore
 let opportunitiesData = [];
 
-// Listen for actual Firebase login state changes
+// Listens for login state changes and retrieves the user's saved/starred opportunities from Firestore
 onAuthStateChanged(auth, async (user) => {
     if (user) {
         isLoggedIn = true;
         currentUser = user;
         hasFullAccess = user.emailVerified; 
         
-        // Fetch the user's saved opportunities from Firestore
+        // Fetch the user's saved opportunity IDs from their Firestore profile document
         const docRef = doc(db, "users", user.uid);
         try {
             const docSnap = await getDoc(docRef);
@@ -82,13 +97,15 @@ onAuthStateChanged(auth, async (user) => {
         userStarredIds = [];
     }
     
-    // Re-apply filters to re-render the UI based on auth & saved data
+    // Re-apply filters to refresh UI based on current user state and saved items
     applyFilters();
 });
 
 // ==========================================
 // MAP INITIALIZATION
 // ==========================================
+
+// Sets default map view coordinates and geographic bounding limits around Charlotte, NC
 const centerCoords = [35.12, -80.70]; 
 const mapBounds = L.latLngBounds([34.72, -81.12], [35.58, -80.18]);
 const map = L.map('interactive-map', {
@@ -105,10 +122,12 @@ const map = L.map('interactive-map', {
     worldCopyJump: false
 });
 
+// Load MapTiler base map tile layer
 L.tileLayer('https://api.maptiler.com/maps/streets-v4/{z}/{x}/{y}.png?key=algTQ7Nhcq5z8k3FE0BE', {
     attribution: '<a href="https://www.maptiler.com/copyright/" target="_blank">&copy; MapTiler</a> <a href="https://www.openstreetmap.org/copyright" target="_blank">&copy; OpenStreetMap contributors</a>'  
 }).addTo(map);
 
+// Custom Leaflet map control button to re-center the map view on the user's current location
 const HomeControl = L.Control.extend({
     options: { position: "topleft" },
     onAdd() {
@@ -120,7 +139,7 @@ const HomeControl = L.Control.extend({
         L.DomEvent.on(button, "click", () => {
             if (userLocation) map.setView([userLocation.lat, userLocation.lng], Math.max(map.getZoom(), 12));
             else if (navigator.geolocation) {
-                // Fallback attempt if not initially loaded
+                // Request user location if not already captured
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
@@ -133,10 +152,6 @@ const HomeControl = L.Control.extend({
     }
 });
 map.addControl(new HomeControl());
-
-// ==========================================
-// EXPANDED OPPORTUNITIES DATABASE (15 Total)
-// ==========================================
 
 
 // ==========================================
@@ -153,6 +168,7 @@ let markerGroup = L.layerGroup().addTo(map);
 let userLocation = null; 
 let currentRadiusCircle = null; 
 
+// Formats distance in miles between user location and opportunity coordinates
 function formatDistance(coords) {
     if (!userLocation) return "Distance unavailable";
     const meters = map.distance(L.latLng(userLocation.lat, userLocation.lng), L.latLng(coords[0], coords[1]));
@@ -160,7 +176,7 @@ function formatDistance(coords) {
     return `${miles < 1 ? miles.toFixed(2) : miles.toFixed(1)} miles away`;
 }
 
-// Modal generation function
+// Populates and displays the full details popup modal for a specific opportunity
 function openModal(id) {
     const opp = opportunitiesData.find(o => o.id === id);
     if (!opp) return;
@@ -168,6 +184,7 @@ function openModal(id) {
     const modal = document.getElementById('opp-modal');
     const modalBody = document.getElementById('modal-body');
 
+    // Generate HTML for verification badges
     const verifiedBadgeHtml = opp.verified === true 
         ? `<span class="badge verified">🟢 Verified 501(c)(3)</span>` 
         : (opp.verified === "gov" ? `<span class="badge gov">🏛️ Government Organization</span>` : '');
@@ -178,6 +195,7 @@ function openModal(id) {
     const applyLabel = !hasFullAccess ? "Verify email to apply" : (opp.isOpen ? "Apply via External Link" : "Applications Closed");
     const tasksListHtml = opp.responsibilities.map(t => `<li>${t}</li>`).join('');
 
+    // Inject modal detail markup
     modalBody.innerHTML = `
         <div class="modal-header">
             <h2>${opp.name}</h2>
@@ -227,9 +245,9 @@ function openModal(id) {
     modal.classList.add('active');
 }
 
-// Global Event Delegation for buttons (Learn More & Star Button)
+// Global Event Delegation for dynamic buttons ("Learn More" and "Star/Save")
 document.addEventListener('click', async function(e) {
-    // Check if they clicked "Learn More"
+    // Event handler for "Learn More" modal trigger
     const modalBtn = e.target.closest('.open-modal-btn');
     if (modalBtn) {
         const id = parseInt(modalBtn.getAttribute('data-opp-id'), 10);
@@ -237,7 +255,7 @@ document.addEventListener('click', async function(e) {
         return;
     }
 
-    // Check if they clicked the Star/Save button
+    // Event handler for Star/Save opportunity toggle button
     const starBtn = e.target.closest('.star-btn');
     if (starBtn) {
         if (!isLoggedIn || !currentUser) {
@@ -257,14 +275,14 @@ document.addEventListener('click', async function(e) {
 
         try {
             if (isCurrentlyStarred) {
-                // Remove from local array, update UI, and push removal to Firestore
+                // Remove from starred array locally and sync with Firestore database
                 userStarredIds = userStarredIds.filter(savedId => savedId !== id);
                 starBtn.textContent = '☆';
                 starBtn.setAttribute("aria-label", "Save opportunity");
                 starBtn.title = "Save opportunity";
                 await updateDoc(userRef, { starredOpportunities: arrayRemove(id) });
             } else {
-                // Add to local array, update UI, and push addition to Firestore
+                // Add to starred array locally and sync with Firestore database
                 userStarredIds.push(id);
                 starBtn.textContent = '⭐';
                 starBtn.setAttribute("aria-label", "Remove from saved opportunities");
@@ -278,17 +296,21 @@ document.addEventListener('click', async function(e) {
     }
 });
 
+
 // ==========================================
 // RENDERING & FILTERING LOGIC
 // ==========================================
+
+// Renders filtered opportunity cards on the left list panel and pin markers on the map
 function renderOpportunities(dataToRender) {
+    // Limit unverified or guest users to 3 sample preview results
     const visibleData = hasFullAccess ? dataToRender : dataToRender.slice(0, 3);
     if (oppCountDisplay) oppCountDisplay.textContent = visibleData.length;
     if (listingsGrid) listingsGrid.innerHTML = '';
     markerGroup.clearLayers();
 
     visibleData.forEach(opp => {
-        // Render Map Marker for Opportunity
+        // Render Map Marker Pin for the Opportunity
         const marker = L.marker(opp.coords);
 
         const popupContent = `
@@ -313,7 +335,7 @@ function renderOpportunities(dataToRender) {
         }
         markerGroup.addLayer(marker);
     
-        // Render Left-Side Card
+        // Render Left-Side Opportunity Card
         if (listingsGrid) {
             const statusBadgeClass = opp.isOpen ? "status-open" : "status-closed";
             const statusBadgeText = opp.isOpen ? "Open" : "Closed";
@@ -325,7 +347,7 @@ function renderOpportunities(dataToRender) {
             const tasksPreviewHTML = opp.responsibilities.slice(0,3).map(task => `<li>${task}</li>`).join('');
             const dynamicBgStyle = opp.imageSrc ? `background-image: url('${opp.imageSrc}');` : '';
             
-            // Check if this opportunity is in the user's saved array
+            // Check if item is saved in user's profile
             const starIcon = userStarredIds.includes(opp.id) ? '⭐' : '☆';
 
             const cardHTML = `
@@ -364,6 +386,7 @@ function renderOpportunities(dataToRender) {
         }
     });
 
+    // Displays prompt card encouraging unverified/guest users to sign up to view all postings
     if (!hasFullAccess && dataToRender.length > 3) {
         const hiddenCount = dataToRender.length - 3;
         const promptTitle = isLoggedIn ? "Verify Your Email to Unlock" : "Unlock";
@@ -382,6 +405,7 @@ function renderOpportunities(dataToRender) {
     }
 }
 
+// Filters opportunity list based on search term, category dropdown, and distance radius
 function applyFilters() {
     const searchTerm = searchInput.value.toLowerCase().trim();
     const selectedCategory = categoryFilter.value;
@@ -402,11 +426,13 @@ function applyFilters() {
         return matchesSearch && matchesCategory && matchesRadius;
     });
 
+    // Remove existing radius circle overlay on map
     if (currentRadiusCircle) {
         map.removeLayer(currentRadiusCircle);
         currentRadiusCircle = null;
     }
 
+    // Draw radius circle overlay on map if distance filter is active
     if (selectedRadius && userLocation) {
         const radiusInMeters = selectedRadius * 1609.34;
         currentRadiusCircle = L.circle([userLocation.lat, userLocation.lng], {
@@ -419,6 +445,7 @@ function applyFilters() {
         map.fitBounds(currentRadiusCircle.getBounds(), { padding: [20, 20], maxZoom: 13 });
     }
 
+    // Update distance status text on UI
     if (mapDistanceStatus) {
         if (!userLocation) {
             mapDistanceStatus.textContent = "Allow location access to see exact distances.";
@@ -432,7 +459,7 @@ function applyFilters() {
     renderOpportunities(filteredData);
 }
 
-// Attach Event Listeners
+// Attach input listeners to filter controls
 searchInput.addEventListener('input', applyFilters);
 categoryFilter.addEventListener('change', applyFilters);
 radiusFilter.addEventListener('change', () => {
@@ -444,7 +471,7 @@ radiusFilter.addEventListener('change', () => {
     applyFilters();
 });
 
-// Initial Render
+// Initial Data Loading & Render Call
 loadOpportunities().then(() => {
     applyFilters();
     setTimeout(() => {
@@ -452,14 +479,14 @@ loadOpportunities().then(() => {
     }, 200);
 });
 
-// Modal Close Logic
+// Modal Dismiss Logic
 const modalOverlay = document.getElementById('opp-modal');
 if (modalOverlay) {
     modalOverlay.querySelector('.close-modal').addEventListener('click', () => modalOverlay.classList.remove('active'));
     modalOverlay.addEventListener('click', (e) => { if (e.target === modalOverlay) modalOverlay.classList.remove('active'); });
 }
 
-// User Location Logic
+// Geolocation Handling: Requests user location to enable distance calculations and marker placement
 if ("geolocation" in navigator) {
     navigator.geolocation.getCurrentPosition(
         (position) => {

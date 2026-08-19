@@ -1,3 +1,16 @@
+/*
+🟡 Conditional / Fallback Use
+  FILE PURPOSE:
+  This data module (js/opportunitiesData.js) exports a comprehensive list of verified volunteer 
+  opportunity objects. Each object contains details such as location coordinates, age requirements, descriptions, 
+  schedules, contact info, and role responsibilities.
+
+  FILES REFERENCED IN THIS FILE:
+  - Referenced Images: images/Matthews Help Center.jpg, images/IndianTrailParks.jpg, images/HopeForHarvest.jpg, images/AnimalShelter.png, images/SeniorNutrition.jpg, images/Library.jpg, images/TealDiva.jpg, images/Greater Matthews Habitat for Humanity.jpg, images/Common Heart.jpg, images/Bright Blessings.jpg, images/Heart For Monroe.jpg, images/Community Shelter of Union County.jpg, images/Humane Society of Union County.jpg, images/Second Harvest Food Bank.jpg, images/Habitat Charlotte.jpg
+  - Associated JavaScript Modules: Imported by js/opportunities.js to render cards on the listings grid and map pins on the interactive Leaflet map.
+*/
+
+// Array of structured volunteer opportunity objects
 const opportunitiesData = [
     {
         id: 1,
@@ -420,4 +433,5 @@ const opportunitiesData = [
     }
 ];
 
+// Export array for module imports
 export default opportunitiesData;

@@ -1,3 +1,14 @@
+/*
+🔴 Currently Unused
+  FILE PURPOSE:
+  This data module (js/opportunitySource.js) exports an array containing verified partner 
+  nonprofit organizations and community services operating in and around Charlotte and Union County.
+
+  FILES REFERENCED IN THIS FILE:
+  - Associated JavaScript Modules: Imported by scripts like js/opportunities.js to reference official organization website links.
+*/
+
+// Array of partner organizations and their official web addresses
 export const opportunitySources = [
     {
         name: "Matthews Help Center",

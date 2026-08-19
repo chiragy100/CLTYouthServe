@@ -1,7 +1,22 @@
+/*
+  FILE PURPOSE:
+  This script (js/dashboard.js) powers the user account dashboard page. It handles checking and 
+  updating the user's email verification status, sending verification link resends, fetching 
+  user profile data (name, email, role, join date) from Firestore, and rendering the user's 
+  saved/starred opportunities.
+
+  FILES REFERENCED IN THIS FILE:
+  - External Firebase Libraries: firebase-app.js, firebase-auth.js, firebase-firestore.js (loaded via Google CDN)
+  - Associated HTML Page: dashboard.html
+  - Redirection Routes: index.html, login.html, opportunities.html
+*/
+
+// Import required modular Firebase functions for app initialization, authentication, and database retrieval
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut, sendEmailVerification } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
 import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
+// Firebase configuration credentials object
 const firebaseConfig = {
   apiKey: "AIzaSyCO-AmNN7QO_9wbqNq9nR1e_XYBdlRSLVg",
   authDomain: "clt-youthserve.firebaseapp.com",
@@ -12,11 +27,12 @@ const firebaseConfig = {
   measurementId: "G-7LWN04E6QL"
 };
 
+// Initialize Firebase services
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// We need a copy of the database here to cross-reference the saved IDs.
+// Local opportunity lookup array used to populate metadata for starred items on the dashboard
 const opportunitiesData = [
     { id: 1, name: "Matthews Help Center", city: "Matthews, NC", commitment: "Weekly / Recurring" },
     { id: 2, name: "Indian Trail Parks & Rec", city: "Indian Trail, NC", commitment: "One-Time Event" },
@@ -35,6 +51,7 @@ const opportunitiesData = [
     { id: 15, name: "Habitat for Humanity of the Charlotte Region", city: "Charlotte, NC", commitment: "Recurring / Shifts" }
 ];
 
+// Reloads user object and updates UI warning elements based on current email verification state
 async function updateVerificationState(user) {
     await user.reload();
     const isVerified = user.emailVerified;
@@ -48,15 +65,18 @@ async function updateVerificationState(user) {
     return isVerified;
 }
 
+// Authentication state listener: Runs whenever user session state changes or loads
 onAuthStateChanged(auth, async (user) => {
     if (user) {
+        // Step 1: Check and update email verification status
         await updateVerificationState(user);
-        // --- Handle Email Verification Warning ---
+        
         const warningBanner = document.getElementById("verify-warning");
         if (!user.emailVerified) {
             if(warningBanner) warningBanner.style.display = "block";
             const resendBtn = document.getElementById("resend-btn");
             if(resendBtn) {
+                // Attach event listener to resend verification email
                 resendBtn.addEventListener("click", () => {
                     resendBtn.textContent = "Sending...";
                     resendBtn.style.opacity = "0.7";
@@ -82,6 +102,7 @@ onAuthStateChanged(auth, async (user) => {
             if(warningBanner) warningBanner.style.display = "none";
         }
 
+        // Attach listener for manual verification status refresh button
         const refreshBtn = document.getElementById("refresh-verification-btn");
         if (refreshBtn) refreshBtn.addEventListener("click", async () => {
             refreshBtn.disabled = true;
@@ -90,20 +111,20 @@ onAuthStateChanged(auth, async (user) => {
             if (auth.currentUser.emailVerified) window.location.reload();
         });
         
-       // --- Fetch User Data from Firestore ---
+        // Step 2: Fetch profile document from Firestore 'users' collection
         const docRef = doc(db, "users", user.uid);
         
         getDoc(docRef).then((docSnap) => {
             if (docSnap.exists()) {
                 const userData = docSnap.data();
                 
-                // 1. Update Names & Greetings
+                // Update names and greeting headers
                 const firstName = userData.fullName ? userData.fullName.split(" ")[0] : "Volunteer";
                 document.getElementById("greeting-name").textContent = firstName;
                 document.getElementById("user-name").textContent = userData.fullName || "Not provided";
                 document.getElementById("user-email").textContent = userData.email || user.email;
                 
-                // 2. Format Join Date
+                // Format and display registration date
                 if (userData.joinedAt) {
                     const dateObj = new Date(userData.joinedAt);
                     document.getElementById("join-date").textContent = dateObj.toLocaleDateString(undefined, { year: 'numeric', month: 'long' });
@@ -111,19 +132,19 @@ onAuthStateChanged(auth, async (user) => {
                     document.getElementById("join-date").textContent = "Recently";
                 }
 
-                // 3. Update Role Badge
+                // Update account role badge
                 const roleBadge = document.getElementById("user-role");
                 roleBadge.textContent = (userData.role || "Student").toUpperCase();
 
-                // 4. RENDER STARRED OPPORTUNITIES
+                // Step 3: Render starred/saved opportunities list
                 const starredIds = userData.starredOpportunities || [];
                 const starredCard = document.querySelector(".starred-card");
                 
                 if (starredIds.length > 0 && starredCard) {
-                    // Match the IDs against our database
+                    // Filter matching opportunity records from local array
                     const savedItems = opportunitiesData.filter(opp => starredIds.includes(opp.id));
                     
-                    // Build the HTML list
+                    // Build HTML markup list for saved items
                     let listHTML = `<div style="display: flex; flex-direction: column; gap: 12px; margin-top: 15px;">`;
                     savedItems.forEach(item => {
                         listHTML += `
@@ -138,7 +159,7 @@ onAuthStateChanged(auth, async (user) => {
                     });
                     listHTML += `</div>`;
                     
-                    // Replace the empty state with the list
+                    // Inject saved opportunities list into the starred card container
                     starredCard.innerHTML = `<h3>Starred Opportunities</h3>${listHTML}`;
                 }
 
@@ -158,11 +179,12 @@ onAuthStateChanged(auth, async (user) => {
             document.getElementById("user-role").textContent = "ERROR";
         });
     } else {
-        window.location.href = "login.html"; // Redirect if not logged in
+        // Redirect unauthenticated visitors back to login page
+        window.location.href = "login.html"; 
     }
 });
 
-// --- Handle Logout ---
+// Logout Event Listener: Handles signing user out and redirecting to homepage
 const logoutBtn = document.getElementById("logout-btn");
 if(logoutBtn) {
     logoutBtn.addEventListener("click", () => {

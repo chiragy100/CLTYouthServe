@@ -1,8 +1,27 @@
+<!--
+  FILE PURPOSE:
+  This file serves as the "Find Opportunities" page (opportunities.html) where students can search, 
+  filter, and view local volunteer postings both in a grid format and on an interactive map.
+
+  FILES REFERENCED IN THIS FILE:
+  - External Stylesheets & Scripts: Leaflet CSS/JS (via unpkg CDN for maps), Google Fonts
+  - Local Stylesheets (CSS): css/style.css, css/opportunities.css
+  - Images: images/CLT Logo.png
+  - Web Pages (HTML): index.html, opportunities.html, login.html, signup.html
+  - Local JavaScript: js/source.js, js/opportunities.js
+-->
+
 <!doctype html>
 <html lang="en">
+  <!-- THE HEAD SECTION: Holds metadata, Google Analytics, fonts, map styling, and page stylesheets -->
   <head>
+    <!-- Sets character encoding so text displays properly across browsers -->
     <meta charset="UTF-8" />
+    
+    <!-- Configures responsive scaling for mobile phones, tablets, and desktop displays -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Google Analytics: Collects visitor usage metrics for the site -->
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-7LWN04E6QL"
@@ -16,20 +35,36 @@
 
       gtag("config", "G-7LWN04E6QL");
     </script>
+    
+    <!-- Page Title shown on the browser tab -->
     <title>Find Opportunities | CLT YouthServe</title>
+    
+    <!-- Browser Tab Icon (Favicon) -->
     <link rel="icon" type="image/png" href="images/CLT Logo.png">
+    
+    <!-- Typography: Custom Google Fonts used for headers and general body text -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
+    
+    <!-- External Leaflet CSS: Styles needed for rendering the interactive map -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+    
+    <!-- Site-wide and Page-Specific CSS Stylesheets -->
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/opportunities.css" />
   </head>
+
+  <!-- THE BODY SECTION: Contains the top navigation, search filters, opportunity listings, map view, and popup modal -->
   <body class="opps-page">
+    
+    <!-- Top Navigation Bar: Displays the logo and links to navigation/authentication pages -->
     <nav class="navbar">
+      <!-- Brand Logo linking back to homepage -->
       <div class="logo">
         <a href="index.html">
           <img src="images/CLT Logo.png" alt="Logo" class="web-logo" />CLT<span>YouthServe</span>
         </a>
       </div>
+      <!-- Links to primary pages and user authentication buttons -->
       <div class="nav-links">
         <a href="opportunities.html" class="active">Opportunities</a>
         <div class="nav-auth" id="auth-menu">
@@ -39,10 +74,14 @@
       </div> 
     </nav>
 
+    <!-- SEARCH & FILTER BAR: Text search input and dropdown filters for narrowing down opportunities -->
     <div class="search-filter-bar">
+      <!-- Prevents traditional page reload on submit since JavaScript handles live filtering -->
       <form class="filter-container" onsubmit="event.preventDefault();">
+        <!-- Text Input: Allows users to search opportunities by keywords or causes -->
         <input type="text" id="search-input" placeholder="Search causes (e.g. Tutoring, Environment)" class="search-input" />
         
+        <!-- Category Filter Dropdown: Lets users select specific interest categories -->
         <select id="category-filter" class="filter-select" aria-label="Filter by Category">
           <option value="">All Categories</option>
           <option value="Community Support">Community Support</option>
@@ -52,6 +91,7 @@
           <option value="Health & Wellness">Health & Wellness</option>
         </select>
 
+        <!-- Distance Filter Dropdown: Lets users restrict opportunities by radius -->
         <select id="radius-filter" class="filter-select" aria-label="Filter by Distance">
           <option value="">Any Distance</option>
           <option value="5">Within 5 miles</option>
@@ -62,11 +102,16 @@
       </form>
     </div>
 
+    <!-- MAIN CONTENT AREA: Split layout containing the list of opportunities and the map -->
     <main class="opps-layout">
+      
+      <!-- Opportunity Cards Column -->
       <section class="listings-container">
+        <!-- Section Header: Title and quick stat badges -->
         <div class="results-header">
           <h2>Volunteer Opportunities in <span>Charlotte</span></h2>
           <div class="stats-bar">
+            <!-- Dynamic Count Badge: Updated by JavaScript to show current total matching results -->
             <div class="stat-pill">
               <strong id="opp-count">0</strong>
               <span>Opportunities</span>
@@ -82,23 +127,34 @@
           </div>
         </div>
 
+        <!-- Dynamic Container: JavaScript dynamically injects individual opportunity card HTML here -->
         <div class="listings-grid" id="listings-grid"></div>
       </section>
 
+      <!-- Interactive Map Column: Displays a map with markers for volunteer locations -->
       <section class="map-view">
         <div id="interactive-map"></div>
       </section>
     </main>
 
+    <!-- POPUP MODAL: Pop-up overlay that opens when a user clicks on an opportunity card to view full details -->
     <div id="opp-modal" class="modal-overlay">
       <div class="modal-content">
+        <!-- Close button to dismiss the popup modal -->
         <button class="close-modal" type="button" aria-label="Close opportunity details">&times;</button>
+        <!-- Container where JavaScript loads the selected opportunity's full details -->
         <div id="modal-body"></div>
       </div>
     </div>
 
+    <!-- JAVASCRIPT IMPORTS: External map library and application code scripts -->
+    <!-- Leaflet JS Library: Script used to construct and power interactive map rendering -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <!-- Core Application Logic: Authentication state, global utilities -->
     <script type="module" src="js/source.js"></script>
+    
+    <!-- Page Logic: Handles searching, filtering, fetching listings, and rendering map markers/modals -->
     <script type="module" src="js/opportunities.js"></script>
   </body>
 </html>

@@ -1,8 +1,27 @@
+<!--
+  FILE PURPOSE:
+  This file serves as the user authentication sign-in page (login.html) where returning students and 
+  volunteers can log into their CLT YouthServe accounts to manage their service hours.
+
+  FILES REFERENCED IN THIS FILE:
+  - External Stylesheets & Scripts: Google Fonts, Google Analytics (GTag)
+  - Local Stylesheets (CSS): css/style.css, css/auth.css
+  - Images: images/CLT Logo.png
+  - Web Pages (HTML): index.html, opportunities.html, login.html, signup.html
+  - Local JavaScript: js/login.js, js/password-toggle.js
+-->
+
 <!DOCTYPE html>
 <html lang="en">
+  <!-- THE HEAD SECTION: Defines metadata, analytics, browser tab details, fonts, and authentication styling -->
   <head>
+    <!-- Sets standard UTF-8 character encoding -->
     <meta charset="UTF-8" />
+    
+    <!-- Configures responsive display scaling for various device screens -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Google Analytics Integration: Tracks page visits and authentication interactions -->
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-7LWN04E6QL"
@@ -17,21 +36,33 @@
       gtag("config", "G-7LWN04E6QL");
     </script>
 
+    <!-- Page Title shown in the browser tab -->
     <title>Sign In | CLT YouthServe</title>
+    
+    <!-- Website Favicon Icon -->
     <link rel="icon" type="image/png" href="images/CLT Logo.png">
     
+    <!-- Web Fonts: Custom font family imports from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
     
+    <!-- CSS Stylesheets: Base global site styles and form-specific authentication styling -->
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/auth.css" />
   </head>
+
+  <!-- THE BODY SECTION: Houses top navigation bar and centered login form card -->
   <body class="auth-page"> 
+    
+    <!-- Top Navigation Bar: Consistent menu banner providing brand identity and navigation -->
     <nav class="navbar">
+      <!-- Brand Logo linking to landing page -->
       <div class="logo">
         <a href="index.html">
           <img src="images/CLT Logo.png" alt="Logo" class="web-logo" />CLT<span>YouthServe</span>
         </a>
       </div>
+      
+      <!-- Navigation items and quick links to authentication routes -->
       <div class="nav-links">
         <a href="opportunities.html">Opportunities</a>
         <div class="nav-auth">
@@ -41,40 +72,55 @@
       </div>
     </nav>
 
+    <!-- MAIN AUTHENTICATION CONTAINER: Centered wrapper layout holding the login card -->
     <div class="auth-container">
       <div class="auth-card">
+        
+        <!-- Header Text: Welcoming message for returning users -->
         <div class="auth-header">
           <h2>Welcome Back</h2>
           <p>Sign in to manage your service hours.</p>
         </div>
 
+        <!-- LOGIN FORM: Captures user credentials for sign-in processing -->
         <form id="login-form" class="auth-form">
+          
+          <!-- Email Input Group -->
           <div class="form-group">
             <label for="email">Email Address</label>
             <input type="email" id="email" autocomplete="email" placeholder="name@example.com" required />
           </div>
 
+          <!-- Password Input Group -->
           <div class="form-group" id="password-group">
             <label for="password">Password</label>
             <input type="password" id="password" autocomplete="current-password" placeholder="••••••••" required />
           </div>
 
+          <!-- Password Recovery Link -->
           <div class="forgot-password-container">
             <a href="#" id="forgot-password-link">Forgot Password?</a>
           </div>
-          <!--ERROR embedded within the UI-->
+          
+          <!-- Dynamic Error Notification Container: JavaScript inserts validation or login failure alerts here -->
           <div id="error-message" class="error-box" role="alert" aria-live="polite"></div>
 
+          <!-- Submit Button -->
           <button id="login-btn" type="submit" class="btn-solid btn-full">Sign In</button>
         </form>
 
+        <!-- Footer Link: Redirects new users to the sign-up page -->
         <div class="auth-footer">
           <p>Don't have an account? <a href="signup.html">Join Now</a></p>
         </div>
       </div>
     </div>
 
+    <!-- JAVASCRIPT EXECUTABLES: Module scripts handling authentication logic and form field interactions -->
+    <!-- Handles login form submission, input validation, and user authentication calls -->
     <script type="module" src="js/login.js"></script>
+    
+    <!-- Enhances password field accessibility (e.g. show/hide password toggle) -->
     <script type="module" src="js/password-toggle.js"></script>
   </body>
 </html>

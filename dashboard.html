@@ -1,8 +1,27 @@
+<!--
+  FILE PURPOSE:
+  This file serves as the user dashboard (dashboard.html) where logged-in students can view their personal account details, 
+  check email verification status, and monitor their saved volunteer opportunities and scheduled upcoming shifts.
+
+  FILES REFERENCED IN THIS FILE:
+  - External Stylesheets & Scripts: Google Fonts, Google Analytics (GTag)
+  - Local Stylesheets (CSS): css/style.css, css/dashboard.css
+  - Images: images/CLT Logo.png
+  - Web Pages (HTML): index.html, opportunities.html
+  - Local JavaScript: js/source.js, js/dashboard.js
+-->
+
 <!DOCTYPE html>
 <html lang="en">
+  <!-- THE HEAD SECTION: Defines page metadata, Google Analytics setup, browser tab icon, fonts, and stylesheets -->
   <head>
+    <!-- Sets character encoding to standard UTF-8 -->
     <meta charset="UTF-8" />
+    
+    <!-- Configures responsive display scaling across mobile, tablet, and desktop screens -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Google Analytics: Collects traffic metrics and dashboard user interaction data -->
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-7LWN04E6QL"
@@ -16,21 +35,34 @@
 
       gtag("config", "G-7LWN04E6QL");
     </script>
+
+    <!-- Page Title displayed in browser tabs -->
     <title>My Dashboard | CLT YouthServe</title>
+    
+    <!-- Website Favicon Icon -->
     <link rel="icon" type="image/png" href="images/CLT Logo.png">
     
+    <!-- Web Fonts: Custom font family imports from Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
     
+    <!-- CSS Stylesheets: Base site layout and dashboard-specific component styling -->
     <link rel="stylesheet" href="css/style.css" />
     <link rel="stylesheet" href="css/dashboard.css" />
   </head>
+
+  <!-- THE BODY SECTION: Displays navigation bar, email verification alert, and user dashboard layout -->
   <body>
+    
+    <!-- Top Navigation Bar: Header providing logo links and authenticated user controls -->
     <nav class="navbar">
+      <!-- Site logo linking back to home page -->
       <div class="logo">
         <a href="index.html">
              <img src="images/CLT Logo.png" alt="Logo" class="web-logo" />CLT<span>YouthServe</span>
         </a>
       </div>
+      
+      <!-- Dashboard navigation links and sign out button -->
       <div class="nav-links">
         <a href="opportunities.html">Opportunities</a>
         <div class="nav-auth">
@@ -39,14 +71,19 @@
       </div>
     </nav>
 
+    <!-- EMAIL VERIFICATION WARNING BANNER: Displays if the logged-in user hasn't verified their email yet -->
     <div id="verify-warning" class="warning-banner">
         ⚠️ <strong>Action Required:</strong> Your email address is not verified. Please check your inbox.
         <span id="verify-status">Your email address is not verified. Please check your inbox.</span>
+        <!-- Actions to resend verification email or refresh verification status -->
         <button id="resend-btn" class="btn-resend">Resend Link</button>
         <button id="refresh-verification-btn" class="btn-resend">I've Verified</button>
     </div>
 
+    <!-- MAIN DASHBOARD CONTENT AREA -->
     <main class="dashboard-container">
+        
+        <!-- Header Banner: Displays user greeting, join date, and action link -->
         <header class="dash-header">
             <div class="header-text">
                 <h1>Welcome, <span id="greeting-name">Volunteer</span>!</h1>
@@ -54,11 +91,12 @@
             </div>
             
             <a href="opportunities.html" class="btn-solid">Find an Opportunity</a>
-            
         </header>
 
+        <!-- DASHBOARD GRID: Grid layout organizing user profile and activity cards -->
         <div class="dash-grid">
             
+            <!-- Card 1: User Profile Details (Populated dynamically by JavaScript) -->
             <div class="dash-card profile-card">
                 <h3>Profile Info</h3>
                 <ul class="profile-list">
@@ -69,6 +107,7 @@
                 </ul>
             </div>
 
+            <!-- Card 2: Starred Opportunities list (Shows default empty state until populated) -->
             <div class="dash-card starred-card">
                 <h3>Starred Opportunities</h3>
                 <div class="empty-state">
@@ -77,6 +116,7 @@
                 </div>
             </div>
 
+            <!-- Card 3: Upcoming Scheduled Shifts (Shows default empty state until populated) -->
             <div class="dash-card shifts-card">
                 <h3>Upcoming Shifts</h3>
                 <div class="empty-state">
@@ -88,7 +128,11 @@
         </div>
     </main>
 
+    <!-- JAVASCRIPT EXECUTABLES: Module scripts handling database connections, auth state, and page logic -->
+    <!-- Core Application Logic: Global setup, session state management -->
     <script type="module" src="js/source.js"></script>
+    
+    <!-- Dashboard Page Logic: Fetches and displays user details, verification status, and account stats -->
     <script type="module" src="js/dashboard.js"></script>
   </body>
 </html>

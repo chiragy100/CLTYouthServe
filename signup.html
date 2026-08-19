@@ -1,8 +1,27 @@
+<!--
+  FILE PURPOSE:
+  This file serves as the sign-up page (signup.html) where new students can create an account 
+  by entering their personal details, date of birth for age verification, and account password.
+
+  FILES REFERENCED IN THIS FILE:
+  - External Stylesheets & Scripts: Google Fonts, Google Analytics (GTag)
+  - Local Stylesheets (CSS): css/style.css, css/auth.css
+  - Images: images/CLT Logo.png
+  - Web Pages (HTML): index.html, opportunities.html, login.html, signup.html
+  - Local JavaScript: js/register.js, js/password-toggle.js
+-->
+
 <!DOCTYPE html>
 <html lang="en">
+  <!-- THE HEAD SECTION: Configures metadata, analytics, title, custom fonts, and page styling -->
   <head>
+    <!-- Sets character encoding for accurate text display -->
     <meta charset="UTF-8" />
+    
+    <!-- Adjusts layout for screens of all sizes (mobile, tablet, desktop) -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    
+    <!-- Google Analytics: Collects user interaction and site traffic analytics -->
     <script
       async
       src="https://www.googletagmanager.com/gtag/js?id=G-7LWN04E6QL"
@@ -17,22 +36,33 @@
       gtag("config", "G-7LWN04E6QL");
     </script>
 
+    <!-- Page title displayed in browser tabs -->
     <title>Join Now | CLT YouthServe</title>
+    
+    <!-- Favicon icon shown in browser tab -->
     <link rel="icon" type="image/png" href="images/CLT Logo.png">
     
+    <!-- Google Fonts used across the page interface -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet" />
     
+    <!-- Global and page-specific stylesheets -->
     <link rel="stylesheet" href="css/style.css" />
-    
     <link rel="stylesheet" href="css/auth.css" />
 </head>
+
+  <!-- THE BODY SECTION: Contains header navigation and the account creation card -->
   <body class="auth-page"> 
+    
+    <!-- Navigation Bar: Header area for site navigation and authentication shortcuts -->
     <nav class="navbar">
+      <!-- Site logo linking back to homepage -->
       <div class="logo">
         <a href="index.html">
           <img src="images/CLT Logo.png" alt="Logo" class="web-logo" />CLT<span>YouthServe</span>
         </a>
       </div>
+      
+      <!-- Primary navigation and authentication buttons -->
       <div class="nav-links">
         <a href="opportunities.html">Opportunities</a>
         <div class="nav-auth">
@@ -42,52 +72,69 @@
       </div>
     </nav>
 
+    <!-- MAIN REGISTRATION CONTAINER: Outer centered block wrapping the registration form -->
     <div class="auth-container">
       <div class="auth-card">
+        
+        <!-- Header Text: Welcoming user to register -->
         <div class="auth-header">
           <h2>Create Account</h2>
           <p>Join the movement serving Charlotte.</p>
         </div>
 
+        <!-- REGISTRATION FORM: Collects user input required to make a new account -->
         <form id="signup-form" class="auth-form">
+          
+          <!-- Full Name Field -->
           <div class="form-group">
             <label for="fullname">Full Name</label>
             <input type="text" id="fullname" autocomplete="name" placeholder="Jane Doe" required />
           </div>
 
+          <!-- Email Address Field -->
           <div class="form-group">
             <label for="email">Email Address</label>
             <input type="email" id="email" autocomplete="email" placeholder="name@example.com" required />
           </div>
 
+          <!-- Date of Birth Field (Used for age verification) -->
           <div class="form-group">
             <label for="dob">Date of Birth</label>
             <input type="date" id="dob" required />
             <p class="form-helper">Used to verify age eligibility.</p>
           </div>
 
+          <!-- New Password Input Field -->
           <div class="form-group">
             <label for="password">Password</label>
             <input type="password" id="password" autocomplete="new-password" placeholder="••••••••" required />
           </div>
 
+          <!-- Confirm Password Input Field -->
           <div class="form-group">
             <label for="confirm-password">Confirm Password</label>
             <input type="password" id="confirm-password" autocomplete="new-password" placeholder="••••••••" required />
           </div>
-          <!--ERROR embedded within the UI-->
+
+          <!-- Error Alert Box: Container where JavaScript inserts error messages if validation fails -->
           <div id="error-message" class="error-box" role="alert" aria-live="polite"></div>
 
+          <!-- Submit Button to submit user details -->
           <button id="submit-btn" type="submit" class="btn-solid btn-full">Create Account</button>
         </form>
 
+        <!-- Form Footer: Link back to sign in page for existing users -->
         <div class="auth-footer">
           <p>Already have an account? <a href="login.html">Sign In</a></p>
         </div>
       </div>
     </div>
 
+    <!-- JAVASCRIPT EXECUTABLES: Scripts handling sign-up processing and UI behavior -->
+    <!-- Handles form validation, user registration logic, and database insertion -->
     <script type="module" src="js/register.js"></script>
+    
+    <!-- Enhances password field accessibility and visibility toggles -->
     <script type="module" src="js/password-toggle.js"></script>
   </body>
 </html>

@@ -1,9 +1,25 @@
-/* Hero Section */
+/*
+  FILE PURPOSE:
+  This file serves as the home landing page stylesheet (css/home.css). It handles 
+  styling for the main hero header section, the city map image frame, key feature cards, 
+  "Coming Soon" overlay badges, and entrance keyframe animations.
+
+  FILES REFERENCED IN THIS FILE:
+  - Uses CSS custom properties defined in css/style.css (e.g., var(--white), var(--mint), var(--emerald), var(--dark)).
+  - HTML Elements: Applies specifically to elements rendered in index.html.
+*/
+
+/* =========================================
+   1. HERO SECTION (Header Banner)
+   ========================================= */
+
+/* Hero Outer Wrapper: Top page hero section with background color gradient */
 .hero {
     padding: 80px 8% 120px 8%;
     background: linear-gradient(180deg, var(--white) 0%, var(--mint) 100%);
 }
 
+/* Hero Grid Layout: Two-column layout splitting text on the left and map image on the right */
 .hero-container {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -12,6 +28,7 @@
     animation: fadeInOnly 1.5s ease;
 }
 
+/* Tagline Sub-header: Small uppercase tag above title indicating location and year */
 .location-tag {
     color: var(--emerald);
     font-weight: 700;
@@ -20,8 +37,10 @@
     font-size: 0.8rem;
 }
 
+/* Primary Hero Title Heading */
 h1 { font-size: 3.8rem; line-height: 1.1; margin: 1rem 0; color: var(--dark); }
 
+/* Responsive Header Adjustments for Smaller Displays */
 @media (max-width: 900px) {
     .hero { padding: 56px 6% 80px; }
     .hero-container { grid-template-columns: 1fr; gap: 40px; }
@@ -31,23 +50,30 @@ h1 { font-size: 3.8rem; line-height: 1.1; margin: 1rem 0; color: var(--dark); }
     .feature-grid { grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
 }
 
+/* Text Highlight Color Utility */
 .highlight { color: var(--emerald); }
 
+/* Hero Action Buttons Container */
 .hero-btns { margin-top: 2.5rem; display: flex; gap: 1rem}
 
+/* Solid Button Link Formatting */
 .btn-solid {text-decoration: none}
 
 
-/* Map Mockup */
+/* =========================================
+   2. HERO MAP MOCKUP
+   ========================================= */
+
+/* Map Frame Wrapper: Styled border box holding the map image */
 .map-container {
     position: relative;
     border-radius: 20px;
     overflow: hidden;
     box-shadow: 0 30px 60px rgba(0,0,0,0.1);
     border: 8px solid white;
-    
 }
 
+/* City Map Image: Styles map photo with contrast filters and entry animation */
 .city-map {
     position: relative;
     z-index: 1;
@@ -58,6 +84,7 @@ h1 { font-size: 3.8rem; line-height: 1.1; margin: 1rem 0; color: var(--dark); }
     animation: fadeInLeft 1s ease;
 }
 
+/* Tinted Map Overlay Panel */
 .map-overlay {
     position: absolute;
     inset: 0;
@@ -65,16 +92,26 @@ h1 { font-size: 3.8rem; line-height: 1.1; margin: 1rem 0; color: var(--dark); }
     background: rgba(27, 67, 50, 0.1);
 }
 
-/* Feature Cards (Landing Page) */
+
+/* =========================================
+   3. FEATURE CARDS & OVERLAYS
+   ========================================= */
+
+/* Main Feature Section Wrapper */
 .feature-section { padding: 100px 8%; }
+
+/* Main Section Heading Title */
 .section-title { 
     text-align: center; 
     font-size: 2.5rem; 
     margin-bottom: 50px;
     animation: fadeInOnly 1.5s ease; 
 }
+
+/* Three-Column Feature Grid Layout */
 .feature-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
 
+/* Individual Feature Info Card */
 .feature-card {
     background: var(--white);
     padding: 20px;
@@ -84,6 +121,7 @@ h1 { font-size: 3.8rem; line-height: 1.1; margin: 1rem 0; color: var(--dark); }
     animation: scaleIn 0.8s ease;
 }
 
+/* Coming Soon Overlay: Dark translucent overlay covering unreleased feature cards */
 .coming-soon {
     position: absolute;
     top: 0px;
@@ -99,10 +137,9 @@ h1 { font-size: 3.8rem; line-height: 1.1; margin: 1rem 0; color: var(--dark); }
     align-items: center; /* Aligns the text vertically (top-to-bottom center) */
     flex-direction: column;
     transition: transform .3s ease;
-
 }
 
-
+/* Coming Soon Overlay Text Elements and Hover Zoom Transitions */
 .coming-soon h2 {
     font-size: 1.5rem;
     margin: 10px 0 5px 0;
@@ -126,30 +163,31 @@ h1 { font-size: 3.8rem; line-height: 1.1; margin: 1rem 0; color: var(--dark); }
     transform: scale(1.1); 
 }
 
+/* Round Badge Icon Styling inside the overlay */
 .icon {
-  /* Step 1: Make it a perfect square */
-  width: 50px;
-  height: 50px;
-  
-  /* Step 2: Turn the square into a circle */
-  border-radius: 50%;
-  
-  /* Step 3: Center the inner icon perfectly */
-  display: inline-flex;
-  justify-content: center;
-  align-items: center;
-  
-  /* Step 4: Add colors and styling */
-  background-image: linear-gradient(#f7980a, #f1cc26);
-  font-size: 20px;
-  transition: transform .3s ease;
+    /* Step 1: Make it a perfect square */
+    width: 50px;
+    height: 50px;
+    
+    /* Step 2: Turn the square into a circle */
+    border-radius: 50%;
+    
+    /* Step 3: Center the inner icon perfectly */
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    
+    /* Step 4: Add colors and styling */
+    background-image: linear-gradient(#f7980a, #f1cc26);
+    font-size: 20px;
+    transition: transform .3s ease;
 }
 
 .coming-soon:hover .icon {
     transform: scale(1.1);
 }
 
-
+/* Feature Card Image Wrapper */
 .img-wrapper img {
     width: 100%;
     height: 200px;
@@ -159,19 +197,23 @@ h1 { font-size: 3.8rem; line-height: 1.1; margin: 1rem 0; color: var(--dark); }
 }
 
 
+/* =========================================
+   4. KEYFRAME ANIMATIONS
+   ========================================= */
 
+/* Slide In From Left Keyframe Animation */
 @keyframes fadeInLeft {
     from { opacity: 0; transform: translateX(-50px); }
     to { opacity: 1; transform: translateX(0); }
 }
 
-
+/* Scale Up Zoom Keyframe Animation */
 @keyframes scaleIn {
     from { opacity: 0; transform: scale(0.95); }
     to { opacity: 1; transform: scale(1); }
 }
 
-
+/* Simple Fade In Keyframe Animation */
 @keyframes fadeInOnly {
     from { opacity: 0; }
     to { opacity: 1; }

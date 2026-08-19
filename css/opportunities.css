@@ -1,4 +1,19 @@
-/* Ensure the body doesn't scroll, only the inner panels do */
+/*
+  FILE PURPOSE:
+  This file serves as the specific stylesheet (css/opportunities.css) for the "Find Opportunities" page. 
+  It formats the split-screen layout containing the left-side scrollable list of volunteer postings and 
+  the right-side interactive map view, as well as popup modals and filter bars.
+
+  FILES REFERENCED IN THIS FILE:
+  - Uses CSS custom properties defined in css/style.css (e.g., var(--white), var(--forest), var(--emerald), var(--mint)).
+  - HTML Elements: Applies specifically to elements rendered in opportunities.html and generated dynamically by js/opportunities.js.
+*/
+
+/* =========================================
+   1. PAGE LAYOUT & OVERFLOW CONTROL
+   ========================================= */
+
+/* Body Viewport Lock: Prevents overall window scrolling on desktop so the list and map panels scroll independently */
 body.opps-page {
     height: 100vh;
     overflow: hidden; 
@@ -6,7 +21,11 @@ body.opps-page {
     flex-direction: column;
 }
 
-/* Search Bar */
+/* =========================================
+   2. SEARCH & FILTER BAR
+   ========================================= */
+
+/* Search Bar Wrapper: Sticky header containing search inputs and category filters */
 .search-filter-bar {
     background: var(--white);
     padding: 1rem 6%; 
@@ -15,8 +34,10 @@ body.opps-page {
     flex-shrink: 0; 
 }
 
+/* Filter Flex Container: Aligns text input and select dropdowns side-by-side */
 .filter-container { display: flex; gap: 15px; align-items: center; }
 
+/* Text Search Input Field */
 .search-input {
     flex: 2;
     padding: 12px 20px;
@@ -25,6 +46,7 @@ body.opps-page {
     font-family: "Times New Roman", Times, serif;
 }
 
+/* Category and Distance Select Dropdowns */
 .filter-select {
     font-family: "Times New Roman", Times, serif;
     flex: 1;
@@ -34,16 +56,70 @@ body.opps-page {
     background: var(--white);
 }
 
-.map-home-control { background: #fff; border: 1px solid rgba(27,67,50,.2); border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,.2); color: var(--forest); cursor: pointer; font-size: .8rem; font-weight: 700; padding: 8px 10px; transition: background .2s, box-shadow .2s, transform .2s; }
-.map-home-control:hover, .map-home-control:focus-visible { background: var(--mint); box-shadow: 0 4px 12px rgba(27,67,50,.25); transform: translateY(-1px); }
+/* =========================================
+   3. MAP CONTROLS & OVERLAYS
+   ========================================= */
+
+/* Custom Map Reset Button: Re-centers map view on Charlotte */
+.map-home-control { 
+    background: #fff; 
+    border: 1px solid rgba(27,67,50,.2); 
+    border-radius: 8px; 
+    box-shadow: 0 2px 8px rgba(0,0,0,.2); 
+    color: var(--forest); 
+    cursor: pointer; 
+    font-size: .8rem; 
+    font-weight: 700; 
+    padding: 8px 10px; 
+    transition: background .2s, box-shadow .2s, transform .2s; 
+}
+.map-home-control:hover, 
+.map-home-control:focus-visible { 
+    background: var(--mint); 
+    box-shadow: 0 4px 12px rgba(27,67,50,.25); 
+    transform: translateY(-1px); 
+}
+
+/* Distance Indicator Highlight */
 .distance-label { color: var(--emerald); font-weight: 700; }
-.map-info-panel { position: absolute; top: 12px; right: 12px; z-index: 500; max-width: min(330px, calc(100% - 24px)); padding: 10px 12px; border: 1px solid rgba(27,67,50,.16); border-radius: 10px; background: rgba(255,255,255,.94); box-shadow: 0 4px 14px rgba(0,0,0,.14); color: var(--forest); font-size: .76rem; line-height: 1.35; pointer-events: none; }
+
+/* Map Info Panel: Small overlay panel providing context over the map corner */
+.map-info-panel { 
+    position: absolute; 
+    top: 12px; 
+    right: 12px; 
+    z-index: 500; 
+    max-width: min(330px, calc(100% - 24px)); 
+    padding: 10px 12px; 
+    border: 1px solid rgba(27,67,50,.16); 
+    border-radius: 10px; 
+    background: rgba(255,255,255,.94); 
+    box-shadow: 0 4px 14px rgba(0,0,0,.14); 
+    color: var(--forest); 
+    font-size: .76rem; 
+    line-height: 1.35; 
+    pointer-events: none; 
+}
 .map-info-panel strong { display: block; margin-bottom: 2px; font-size: .78rem; }
 .map-info-panel span { color: #52605a; }
-.distance-tooltip { border: 1px solid rgba(27,67,50,.2); border-radius: 6px; color: var(--forest); font-size: .7rem; font-weight: 700; padding: 3px 6px; box-shadow: 0 2px 7px rgba(0,0,0,.15); }
+
+/* Distance Tooltip Box on Map Pins */
+.distance-tooltip { 
+    border: 1px solid rgba(27,67,50,.2); 
+    border-radius: 6px; 
+    color: var(--forest); 
+    font-size: .7rem; 
+    font-weight: 700; 
+    padding: 3px 6px; 
+    box-shadow: 0 2px 7px rgba(0,0,0,.15); 
+}
 .distance-tooltip::before { border-top-color: rgba(27,67,50,.2); }
 
-/* INCREASE LEFT PANEL WIDTH */
+/* =========================================
+   4. MAIN SPLIT-SCREEN LAYOUT
+   ========================================= */
+
+/* Two-Column Grid: Left fixed width list (580px) and right responsive map view */
 .opps-layout {
     display: grid;
     grid-template-columns: 580px 1fr;
@@ -52,7 +128,7 @@ body.opps-page {
     position: relative;
 }
 
-/* ADD STATS BAR STYLING */
+/* Stats Summary Row: Displays total count pills above the listings list */
 .stats-bar {
     display: flex;
     gap: 12px;
@@ -95,7 +171,11 @@ body.opps-page {
     text-align: center;
 }
 
-/* Left Side: The Scrollable List */
+/* =========================================
+   5. LISTINGS CONTAINER & OPPORTUNITY CARDS
+   ========================================= */
+
+/* Left Side Column: Independently scrollable listings container */
 .listings-container {
     height: 100%;
     overflow-y: auto; 
@@ -107,13 +187,14 @@ body.opps-page {
 .results-header { margin-bottom: 20px; padding: 0 10px; }
 .results-header h2 span { color: var(--emerald); }
 
+/* Vertical Stack for Opportunity Cards */
 .listings-grid {
     display: flex;      
     flex-direction: column;
     gap: 20px;
 }
 
-/* Cards */
+/* Individual Opportunity Listing Card */
 .opp-card {
     display: flex;
     background: var(--white);
@@ -122,10 +203,11 @@ body.opps-page {
     box-shadow: 0 2px 10px rgba(0,0,0,0.04);
     transition: transform 0.2s;
     min-height: 160px;
-    position: relative; /* Add this line */ 
+    position: relative; 
 }
 .opp-card:hover { transform: translateY(-3px); }
 
+/* Left Image Container inside Card */
 .opp-img {
     width: 140px;
     flex-shrink: 0; 
@@ -135,6 +217,7 @@ body.opps-page {
     background-color: #e2e8f0; 
 }
 
+/* Favorite/Star Button overlaying top right corner */
 .star-btn {
     position: absolute;
     top: 10px;
@@ -164,6 +247,7 @@ body.opps-page {
 }
 .star-btn:active { transform: scale(.96); }
 
+/* Category Tag Badge over Card Image */
 .category-tag {
     position: absolute;
     top: 10px; left: 10px;
@@ -175,11 +259,12 @@ body.opps-page {
     font-weight: 700;
 }
 
+/* Opportunity Text Content Wrapper */
 .opp-content { padding: 16px; flex: 1; display: flex; flex-direction: column; }
 .opp-content h3 { font-size: 1.1rem; margin-bottom: 4px; color: var(--dark); }
 .org-name { color: var(--emerald); font-weight: 600; font-size: 0.85rem; margin-bottom: 8px; display:flex; align-items:center; flex-wrap:wrap;}
 
-/* Verification Badges */
+/* Verification & Organization Type Badges */
 .verified-badge {
     font-size: 0.7rem; font-weight: 700; color: #065f46;
     background: #d1fae5; border: 1px solid #6ee7b7;
@@ -202,7 +287,7 @@ body.opps-page {
     flex-wrap: wrap;
 }
 
-/* Bulleted Role Summary on Card */
+/* Bulleted Role Summary Block on Card */
 .role-brief {
     font-size: 0.8rem;
     color: #444;
@@ -216,6 +301,7 @@ body.opps-page {
 .role-brief ul { margin: 0; padding-left: 18px; }
 .role-brief li { margin-bottom: 3px; line-height: 1.3;}
 
+/* Action Button inside Opportunity Cards */
 .btn-card {
     background: transparent;
     border: 1.5px solid var(--forest);
@@ -231,7 +317,11 @@ body.opps-page {
 }
 .btn-card:hover { background: var(--forest); color: white; }
 
-/* Right Side: The Map */
+/* =========================================
+   6. MAP SECTION & POPUP MODALS
+   ========================================= */
+
+/* Right Side Map Frame */
 .map-view {
     height: 100%;
     width: 100%;
@@ -245,10 +335,11 @@ body.opps-page {
     z-index: 1;
 }
 
+/* Open/Closed Opportunity Status Tags */
 .status-closed { background-color: #d9534f; }
 .status-open { background-color: var(--forest); }
 
-/* Modal Overlay Styles */
+/* Modal Overlay: Dark backdrop for opportunity details popup */
 .modal-overlay {
     position: fixed; top: 0; left: 0; right: 0; bottom: 0;
     background: rgba(0,0,0,0.6);
@@ -258,6 +349,8 @@ body.opps-page {
     transition: opacity 0.2s ease;
 }
 .modal-overlay.active { opacity: 1; pointer-events: auto; }
+
+/* Modal Main Window Box */
 .modal-content {
     background: #fff;
     width: 92%; max-width: 600px; max-height: 90vh;
@@ -265,12 +358,16 @@ body.opps-page {
     padding: 30px; position: relative;
     box-shadow: 0 15px 40px rgba(0,0,0,0.2);
 }
+
+/* Modal Close Cross Button */
 .close-modal {
     position: absolute; top: 15px; right: 20px;
     background: transparent; border: none; font-size: 2rem;
     cursor: pointer; color: #666; line-height: 1;
 }
 .close-modal:hover { color: #000; }
+
+/* Modal Content Header & Badges */
 .modal-header h2 { margin: 0 0 10px 0; color: #1b4332; }
 .modal-header .badge { 
     display: inline-block; padding: 4px 10px; border-radius: 6px; 
@@ -280,12 +377,14 @@ body.opps-page {
 .badge.gov { background-color: #e0e7ff; color: #3730a3; border: 1px solid #6366f1; }
 .badge.status { color: white; border: 1px solid transparent; }
 
+/* Inner Modal Sections: Requirements, Descriptions, and Lists */
 .modal-section { margin-top: 20px; }
 .modal-section h3 { font-size: 1.05rem; color: #222; margin-bottom: 8px; border-bottom: 1px solid #eee; padding-bottom: 6px;}
 .modal-section p { font-size: 0.9rem; color: #444; line-height: 1.5; margin-bottom: 8px;}
 .modal-section ul { padding-left: 20px; margin-top: 5px; }
 .modal-section li { font-size: 0.9rem; color: #444; margin-bottom: 6px; line-height: 1.4; }
 
+/* Modal Sign-Up / Apply Button */
 .modal-apply-btn { 
     display: inline-block; background: var(--forest, #2d6a4f); color: white; 
     padding: 12px 24px; text-decoration: none; border-radius: 8px; 
@@ -294,12 +393,17 @@ body.opps-page {
 }
 .modal-apply-btn:hover { background: var(--emerald, #1b4332); }
 
-/* Responsive */
+/* =========================================
+   7. RESPONSIVE BREAKPOINTS
+   ========================================= */
+
+/* Tablet View Adjustments: Converts split-screen into stacked list and map sections */
 @media (max-width: 900px) {
     .opps-layout { grid-template-columns: 1fr; grid-template-rows: 1fr 1fr; }
     .listings-container { border-right: none; border-bottom: 1px solid #ddd; }
 }
 
+/* Mobile View Adjustments: Stacks filters vertically and enables full window scrolling */
 @media (max-width: 700px) {
     body.opps-page { height: auto; min-height: 100vh; overflow: auto; }
     .search-filter-bar { padding: .75rem 5%; }
@@ -314,8 +418,10 @@ body.opps-page {
 }
 
 /* ==========================================
-   NEWLY EXTRACTED UTILITY CLASSES (FROM JS)
+   8. DYNAMIC JAVASCRIPT UTILITY CLASSES
    ========================================== */
+
+/* Supporting utility styles appended via JavaScript DOM manipulation */
 .modal-badges-container { margin-bottom: 15px; }
 .modal-section-no-border { border: none; }
 .modal-footer { text-align: center; margin-top: 15px; }

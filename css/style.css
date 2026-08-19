@@ -1,22 +1,43 @@
+/*
+  FILE PURPOSE:
+  This file serves as the core base stylesheet (css/style.css) across the entire CLT YouthServe website. 
+  It defines global color themes, basic browser resets, typography defaults, main navigation bar styling, 
+  and reusable button components used on all pages.
+
+  FILES REFERENCED IN THIS FILE:
+  - External Fonts: Uses 'Montserrat' and 'Open Sans' fonts loaded in the HTML head.
+  - HTML Elements: Applies styles across elements in index.html, opportunities.html, login.html, signup.html, and dashboard.html.
+*/
+
 /* =========================================
    1. GLOBAL VARIABLES & RESET
    ========================================= */
+
+/* Root Variables: Holds shared site-wide color palette variables for easy reusability */
 :root {
-    --forest: #1b4332;
-    --emerald: #2d6a4f;
-    --mint: #d8f3dc;    
-    --sage: #95d5b2;
-    --white: #ffffff;
-    --off-white: #eaf7f0;
-    --dark: #081c15;
+    --forest: #1b4332;     /* Dark forest green used for primary brand accents and text */
+    --emerald: #2d6a4f;    /* Vibrant emerald green used for hover states and highlights */
+    --mint: #d8f3dc;       /* Very light mint background tint */
+    --sage: #95d5b2;       /* Soft green shade used for focus outlines and highlights */
+    --white: #ffffff;      /* Pure white color */
+    --off-white: #eaf7f0;  /* Main page background color */
+    --dark: #081c15;       /* Very dark green-black color for body text */
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+/* Global Reset: Standardizes margins, padding, and box sizing across all browsers */
+* { 
+    margin: 0; 
+    padding: 0; 
+    box-sizing: border-box; 
+}
+
+/* Base Document Formatting: Sets root typography, responsive images, inputs, and accessibility focus outlines */
 html { font-size: 100%; }
 img { max-width: 100%; display: block; }
 button, input, select { font: inherit; }
 :focus-visible { outline: 3px solid var(--sage); outline-offset: 2px; }
 
+/* Body Layout & Typography: Default page font, background color, text color, and line spacing */
 body {
     font-family: 'Open Sans', sans-serif;
     background-color: var(--off-white);
@@ -24,11 +45,15 @@ body {
     line-height: 1.6;
 }
 
+/* Headings Typography: Sets display font for all title headings */
 h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
+
 
 /* =========================================
    2. NAVBAR (Used on all pages)
    ========================================= */
+
+/* Main Header Navigation Bar: Fixed top bar layout containing brand logo and menu links */
 .navbar {
     display: flex;
     justify-content: space-between;
@@ -42,6 +67,7 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     animation: fadeInOnly 1.5s ease;
 }
 
+/* Brand Logo Layout: Styles the site logo name and image with scale hover animations */
 .logo { font-size: 1.4rem; font-weight: 800; color: var(--forest); }
 
 .logo a { 
@@ -56,8 +82,6 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     transform: scale(1.1); 
 }
 
-
-
 .logo span { color: var(--emerald); }
 
 .web-logo {
@@ -67,7 +91,7 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     margin-right: 10px;
 }
 
-
+/* Navigation Links Container: Aligns primary navigation links and action items */
 .nav-links { 
     display: flex; 
     align-items: center; 
@@ -87,6 +111,7 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     color: var(--emerald); /* Keeps it visible and on-brand */
 }
 
+/* Auth Buttons Container: Right side section of navbar separated by a left border divider */
 .nav-auth {
     display: flex;
     align-items: center;
@@ -95,6 +120,7 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     padding-left: 1.5rem;
 }
 
+/* Responsive Navbar Adjustment: Wraps navbar links cleanly on small mobile devices */
 @media (max-width: 700px) {
     .navbar { padding: 1rem 5%; gap: 1rem; flex-wrap: wrap; }
     .nav-links { gap: 1rem; flex-wrap: wrap; justify-content: flex-end; }
@@ -103,9 +129,12 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     .web-logo { width: 32px; height: 32px; margin-right: 6px; }
 }
 
+
 /* =========================================
    3. GLOBAL BUTTONS
    ========================================= */
+
+/* Navbar Button: Compact button style used within the top navigation bar */
 .btn-nav {
     background: var(--forest);
     color: white !important;
@@ -120,6 +149,7 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     transform: translateY(-2px);
 }
 
+/* Solid Main Action Button: Primary filled button with hover elevation and shadow effects */
 .btn-solid {
     background: var(--forest);
     color: white;
@@ -139,6 +169,7 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     box-shadow: 0 4px 12px rgba(27, 67, 50, 0.2); /* Adds a soft shadow drop */
 }
 
+/* Outline Secondary Button: Outlined transparent button with filled background transition on hover */
 .btn-outline {
     background: transparent;
     border: 2px solid var(--forest);
@@ -159,7 +190,7 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     box-shadow: 0 4px 12px rgba(27, 67, 50, 0.2);
 }
 
-
+/* Keyframe Animations: Fade-in effect applied to header elements during page load */
 @keyframes fadeInOnly {
     from { opacity: 0; }
     to { opacity: 1; }

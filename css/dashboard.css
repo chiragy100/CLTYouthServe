@@ -1,12 +1,22 @@
+/*
+  FILE PURPOSE:
+  This file serves as the user dashboard stylesheet (css/dashboard.css). It handles 
+  layout and styling for the user profile cards, email verification warning banners, 
+  status badges, upcoming shifts grid, and empty state placeholder boxes.
+
+  FILES REFERENCED IN THIS FILE:
+  - Uses CSS custom properties defined in css/style.css (e.g., var(--forest), var(--emerald), var(--mint), var(--sage), var(--white), var(--off-white), var(--dark)).
+  - HTML Elements: Applies specifically to elements rendered in dashboard.html.
+*/
+
 /* =========================================
-   DASHBOARD SPECIFIC STYLES
-   (Inherits variables & fonts from style.css)
+   1. WARNING BANNER (EMAIL VERIFICATION)
    ========================================= */
 
-/* Warning Banner */
+/* Top Yellow Alert Banner: Warns users if their email address is not yet verified */
 .warning-banner {
-    display: none; /* Controlled by JS */
-    background-color: #fff3cd; /* Standard alert yellow */
+    display: none; /* Controlled dynamically by JS in js/dashboard.js */
+    background-color: #fff3cd; /* Standard alert yellow background */
     color: #856404;
     padding: 12px 20px;
     text-align: center;
@@ -14,6 +24,7 @@
     font-size: 0.95rem;
 }
 
+/* Action Button inside Verification Banner */
 .btn-resend {
     background: transparent;
     border: 1px solid #856404;
@@ -30,17 +41,24 @@
 .btn-resend:hover {
     background: rgba(133, 100, 4, 0.1);
 }
+
+/* Dimmed state class applied to elements when email verification is required */
 .verification-required { opacity: .65; }
 
-/* Layout */
+
+/* =========================================
+   2. DASHBOARD CONTAINER & HEADER
+   ========================================= */
+
+/* Main Centered Content Container */
 .dashboard-container {
     max-width: 1100px;
     margin: 40px auto;
     padding: 0 20px;
-    animation: fadeInOnly 1s ease; /* Using your global animation */
+    animation: fadeInOnly 1s ease; /* Leverages global keyframe defined in style.css */
 }
 
-/* Dashboard Header */
+/* Header Area: Displays greeting, join date, and link to find opportunities */
 .dash-header {
     display: flex;
     justify-content: space-between;
@@ -55,29 +73,36 @@
     margin-bottom: 5px;
 }
 
+/* Muted Text Subtitle */
 .text-muted {
-    color: rgba(8, 28, 21, 0.6); /* Muted version of your --dark */
+    color: rgba(8, 28, 21, 0.6); /* Muted version of --dark */
     font-size: 0.95rem;
     font-weight: 600;
 }
 
-/* Grid System */
+
+/* =========================================
+   3. GRID SYSTEM & CARDS
+   ========================================= */
+
+/* Responsive Grid layout for profile and saved opportunities cards */
 .dash-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
     gap: 25px;
 }
 
+/* Full Width Card Modification: Spans the upcoming shifts card across the entire bottom row */
 .shifts-card {
-    grid-column: 1 / -1; /* Makes the bottom card span the full width */
+    grid-column: 1 / -1; 
 }
 
-/* Dashboard Cards */
+/* Individual Dashboard Box Card Component */
 .dash-card {
     background: var(--white);
     border-radius: 12px;
     padding: 25px;
-    box-shadow: 0 4px 15px rgba(8, 28, 21, 0.05); /* Shadow using your --dark */
+    box-shadow: 0 4px 15px rgba(8, 28, 21, 0.05); /* Shadow using --dark */
     border: 1px solid rgba(8, 28, 21, 0.05);
 }
 
@@ -89,7 +114,12 @@
     padding-left: 10px;
 }
 
-/* Profile List */
+
+/* =========================================
+   4. PROFILE LIST & BADGES
+   ========================================= */
+
+/* Unordered List displaying profile attributes */
 .profile-list {
     list-style: none;
     padding: 0;
@@ -109,7 +139,7 @@
     border-bottom: none;
 }
 
-/* Badges */
+/* Status & Role Badge Chips */
 .badge {
     background-color: var(--off-white);
     color: var(--forest);
@@ -124,7 +154,12 @@
     color: var(--forest);
 }
 
-/* Empty States */
+
+/* =========================================
+   5. EMPTY STATES & RESPONSIVE BREAKPOINTS
+   ========================================= */
+
+/* Placeholder box displayed when user has zero saved opportunities or shifts */
 .empty-state {
     text-align: center;
     padding: 40px 20px;
@@ -140,7 +175,7 @@
     font-weight: 600;
 }
 
-/* Responsive Adjustments */
+/* Responsive Mobile Display Adjustments */
 @media (max-width: 768px) {
     .dash-header {
         flex-direction: column;

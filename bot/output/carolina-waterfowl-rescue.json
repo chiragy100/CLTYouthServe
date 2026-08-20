@@ -1,0 +1,34 @@
+{
+  "id": null,
+  "name": "Onsite Volunteer Orientation",
+  "category": "Animal Welfare",
+  "city": "Indian Trail, NC",
+  "address": "5403 Poplin Rd, Indian Trail, North Carolina, United States, 28079",
+  "hours": "2 Hours",
+  "age": null,
+  "isOpen": true,
+  "contactInfo": "volunteer@cwrescue.org",
+  "link": "https://volunteer.bloomerang.co/volunteer/#/join-party?k=l7g2rslbvwsq6u",
+  "coords": [
+    0,
+    0
+  ],
+  "imageSrc": "",
+  "description": "Volunteers attend a 2‑hour onsite orientation at Carolina Waterfowl Rescue to learn about animal care, egg processing, facilities, and support roles.",
+  "commitment": "One-Time",
+  "verified": false,
+  "website": "cwrescue.org",
+  "bgCheck": "Not specified",
+  "training": "Not specified",
+  "schedule": "10:00 AM - 12:00 PM on the 1st Saturday and 3rd Sunday of each month",
+  "mission": null,
+  "responsibilities": [
+    "Animal care",
+    "Egg processing",
+    "Facilities volunteer",
+    "Inside support",
+    "Outside support",
+    "Produce prep"
+  ],
+  "sourceUrl": "https://volunteer.bloomerang.co/volunteer/#/join-party?k=l7g2rslbvwsq6u"
+}

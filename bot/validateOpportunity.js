@@ -1,16 +1,12 @@
 /*
   FILE PURPOSE:
-  This module (bot/validator.js) provides a validation utility function used by administrative AI scraping 
-  or data-ingestion bots. It inspects raw AI-extracted opportunity objects to ensure required fields, proper data types, 
-  and valid URL formats before writing data to the system.
+  This module (bot/validator.js) inspects extracted opportunity objects to ensure required fields, 
+  proper data types, and valid URL formats match the application schema before saving.
 
   FILES REFERENCED IN THIS FILE:
-  - Associated Bot Scripts: Imported by administrative testing scripts and data ingestion pipelines (e.g., bot/scraper.js or test-validator.js) 
-    to verify extracted data structure before database insertion.
-    node bot/runOpportunityPipeline.js
+  - Associated Bot Scripts: Imported by bot/runOpportunityPipeline.js and test scripts.
 */
 
-// Exports function to inspect and validate the structure of an AI-extracted opportunity object
 export function validateOpportunity(opportunity) {
     const errors = [];
 
@@ -23,10 +19,7 @@ export function validateOpportunity(opportunity) {
     }
 
     // Step 2: Define and check essential required properties
-    const requiredFields = [
-        "organizationName",
-        "sourceUrl"
-    ];
+    const requiredFields = ["name", "link"];
 
     for (const field of requiredFields) {
         if (
@@ -38,61 +31,29 @@ export function validateOpportunity(opportunity) {
         }
     }
 
-    // Step 3: Validate field data types and nullability
+    // Step 3: Validate field data types based on the updated schema
 
-    // Age requirement check
-    if (
-        opportunity.minimumAge !== null &&
-        typeof opportunity.minimumAge !== "number"
-    ) {
-        errors.push("minimumAge must be a number or null.");
+    // Responsibilities array check
+    if (!Array.isArray(opportunity.responsibilities)) {
+        errors.push("responsibilities must be an array.");
     }
 
-    // Background check flag check
-    if (
-        opportunity.backgroundCheckRequired !== null &&
-        typeof opportunity.backgroundCheckRequired !== "boolean"
-    ) {
-        errors.push(
-            "backgroundCheckRequired must be true, false, or null."
-        );
+    // Map coordinates array check
+    if (!Array.isArray(opportunity.coords) || opportunity.coords.length !== 2) {
+        errors.push("coords must be an array of 2 numbers [lat, lng].");
     }
 
-    // Training flag check
-    if (
-        opportunity.trainingRequired !== null &&
-        typeof opportunity.trainingRequired !== "boolean"
-    ) {
-        errors.push(
-            "trainingRequired must be true, false, or null."
-        );
+    // Verification boolean check
+    if (typeof opportunity.verified !== "boolean") {
+        errors.push("verified must be a boolean value.");
     }
 
-    // Recurring commitment flag check
-    if (
-        opportunity.recurringOpportunity !== null &&
-        typeof opportunity.recurringOpportunity !== "boolean"
-    ) {
-        errors.push(
-            "recurringOpportunity must be true, false, or null."
-        );
-    }
-
-    // Array type checks for roles and requirements
-    if (!Array.isArray(opportunity.volunteerRoles)) {
-        errors.push("volunteerRoles must be an array.");
-    }
-
-    if (!Array.isArray(opportunity.requirements)) {
-        errors.push("requirements must be an array.");
-    }
-
-    // Step 4: Validate URL structure for source link
-    if (typeof opportunity.sourceUrl === "string") {
+    // Step 4: Validate URL structure for application/source link
+    if (typeof opportunity.link === "string" && opportunity.link.trim() !== "") {
         try {
-            new URL(opportunity.sourceUrl);
+            new URL(opportunity.link);
         } catch {
-            errors.push("sourceUrl is not a valid URL.");
+            errors.push("Link is not a valid URL.");
         }
     }
 

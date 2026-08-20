@@ -583,7 +583,7 @@ const opportunitiesData = [
     },
     {
         id: 18,
-        name: "Atrium Health Volunteer Services",
+        name: "Atrium Health Volunteer Services - Charlotte",
         category: "Health & Wellness",
         city: "Charlotte, NC",
         address: "1000 Blythe Blvd, Charlotte, NC 28203",
@@ -696,7 +696,7 @@ const opportunitiesData = [
     {
         id: 22,
         name: "Novant Health Ballantyne Medical Center",
-        category: "Healthcare / Guest Services",
+        category: "Health & Wellness",
         city: "Charlotte, NC",
         address: "10905 Providence Rd West, Charlotte, NC 28277",
         hours: "2–4 Hours per shift",
@@ -724,7 +724,7 @@ const opportunitiesData = [
     {
         id: 23,
         name: "Novant Health Huntersville Medical Center",
-        category: "Healthcare / Guest Services",
+        category: "Health & Wellness",
         city: "Huntersville, NC",
         address: "10030 Gilead Rd, Huntersville, NC 28078",
         hours: "2–4 Hours per shift",
@@ -752,7 +752,7 @@ const opportunitiesData = [
     {
         id: 24,
         name: "Novant Health Matthews Medical Center",
-        category: "Healthcare / Guest Services",
+        category: "Health & Wellness",
         city: "Matthews, NC",
         address: "1500 Matthews Township Pkwy, Matthews, NC 28105",
         hours: "2–4 Hours per shift",
@@ -780,7 +780,7 @@ const opportunitiesData = [
     {
         id: 25,
         name: "American Heart Association (Youth Heart Programs & Heart Clubs)",
-        category: "Health Advocacy / Community Support",
+        category: "Health & Wellness",
         city: "Charlotte, NC (Greater Charlotte Division)",
         address: "128 S Tryon St #1580, Charlotte, NC 28202",
         hours: "3–5 Hours per month (Flexible)",
@@ -789,7 +789,7 @@ const opportunitiesData = [
         contactInfo: "HeartClub@heart.org",
         link: "https://www.heart.org/en/volunteer/opportunities",
         coords: [35.2264, -80.8431],
-        imageSrc: "images/American Heart Association.jpg",
+        imageSrc: "images/American Heart Association.png",
         description: "National health nonprofit offering structured student leadership pathways, campus Heart Clubs, local Heart Walk event support, and youth advocacy opportunities.",
         commitment: "Seasonal / Academic Year",
         verified: true,
@@ -808,7 +808,7 @@ const opportunitiesData = [
     {
         id: 26,
         name: "GenerationNation (Youth Lead Charlotte-Mecklenburg)",
-        category: "Civic Leadership / Youth Development",
+        category: "Community Support",
         city: "Charlotte, NC",
         address: "600 E 4th St, Charlotte, NC 28202",
         hours: "3–5 Hours per month (Sessions held twice monthly)",

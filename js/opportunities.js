@@ -6,13 +6,13 @@ import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/
 import { getFirestore, doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCO-AmNN7QO_9wbqNq9nR1e_XYBdlRSLVg",
-  authDomain: "clt-youthserve.firebaseapp.com",
-  projectId: "clt-youthserve",
-  storageBucket: "clt-youthserve.firebasestorage.app",
-  messagingSenderId: "29022006642",
-  appId: "1:29022006642:web:d783a76d7a0e2fd91b01eb",
-  measurementId: "G-7LWN04E6QL"
+    apiKey: "AIzaSyCO-AmNN7QO_9wbqNq9nR1e_XYBdlRSLVg",
+    authDomain: "clt-youthserve.firebaseapp.com",
+    projectId: "clt-youthserve",
+    storageBucket: "clt-youthserve.firebasestorage.app",
+    messagingSenderId: "29022006642",
+    appId: "1:29022006642:web:d783a76d7a0e2fd91b01eb",
+    measurementId: "G-7LWN04E6QL"
 };
 
 // Initialize Firebase
@@ -22,7 +22,7 @@ const db = getFirestore(app);
 
 // Global state
 let isLoggedIn = false;
-let hasFullAccess = false; 
+let hasFullAccess = true; 
 let currentUser = null;
 let userStarredIds = []; 
 
@@ -31,7 +31,6 @@ onAuthStateChanged(auth, async (user) => {
     if (user) {
         isLoggedIn = true;
         currentUser = user;
-        hasFullAccess = user.emailVerified; 
         
         // Fetch the user's saved opportunities from Firestore
         const docRef = doc(db, "users", user.uid);
@@ -45,7 +44,6 @@ onAuthStateChanged(auth, async (user) => {
         }
     } else {
         isLoggedIn = false;
-        hasFullAccess = false;
         currentUser = null;
         userStarredIds = [];
     }
@@ -88,7 +86,6 @@ const HomeControl = L.Control.extend({
         L.DomEvent.on(button, "click", () => {
             if (userLocation) map.setView([userLocation.lat, userLocation.lng], Math.max(map.getZoom(), 12));
             else if (navigator.geolocation) {
-                // Fallback attempt if not initially loaded
                 navigator.geolocation.getCurrentPosition(
                     (position) => {
                         userLocation = { lat: position.coords.latitude, lng: position.coords.longitude };
@@ -856,6 +853,29 @@ function formatDistance(coords) {
     return `${miles < 1 ? miles.toFixed(2) : miles.toFixed(1)} miles away`;
 }
 
+// Helper function to show a modern toast message
+function showToast(message, linkHTML = "") {
+    let container = document.getElementById("toast-container");
+    if (!container) {
+        container = document.createElement("div");
+        container.id = "toast-container";
+        document.body.appendChild(container);
+    }
+
+    const toast = document.createElement("div");
+    toast.className = "custom-toast";
+    toast.innerHTML = `<span>${message}</span> ${linkHTML}`;
+    
+    container.appendChild(toast);
+
+    setTimeout(() => toast.classList.add("show"), 10);
+
+    setTimeout(() => {
+        toast.classList.remove("show");
+        setTimeout(() => toast.remove(), 300);
+    }, 4000);
+}
+
 // Modal generation function
 function openModal(id) {
     const opp = opportunitiesData.find(o => o.id === id);
@@ -870,8 +890,8 @@ function openModal(id) {
 
     const statusBadgeText = opp.isOpen ? "Accepting Volunteers" : "Currently Full";
     const statusClass = opp.isOpen ? "status-open" : "status-closed";
-    const applyDisabledClass = opp.isOpen && hasFullAccess ? "" : "disabled";
-    const applyLabel = !hasFullAccess ? "Verify email to apply" : (opp.isOpen ? "Apply via External Link" : "Applications Closed");
+    const applyDisabledClass = opp.isOpen ? "" : "disabled";
+    const applyLabel = opp.isOpen ? "Apply via External Link" : "Applications Closed";
     const tasksListHtml = opp.responsibilities.map(t => `<li>${t}</li>`).join('');
 
     modalBody.innerHTML = `
@@ -914,7 +934,7 @@ function openModal(id) {
             <p>✉️ <a href="mailto:${opp.contactInfo}">${opp.contactInfo}</a></p>
         </div>
         <div class="modal-footer">
-            <a href="${opp.isOpen && hasFullAccess ? opp.link : '#'}" target="_blank" rel="noopener" class="modal-apply-btn ${applyDisabledClass}" ${!hasFullAccess ? 'aria-disabled="true"' : ''}>
+            <a href="${opp.isOpen ? opp.link : '#'}" target="_blank" rel="noopener" class="modal-apply-btn ${applyDisabledClass}">
                 ${applyLabel}
             </a>
             <p class="modal-timestamp">Last Updated: August 2026</p>
@@ -937,13 +957,10 @@ document.addEventListener('click', async function(e) {
     const starBtn = e.target.closest('.star-btn');
     if (starBtn) {
         if (!isLoggedIn || !currentUser) {
-            alert("Please create a free account or sign in to save opportunities!");
-            window.location.href = "login.html";
-            return;
-        }
-        if (!hasFullAccess) {
-            alert("Please verify your email address before saving opportunities.");
-            window.location.href = "dashboard.html";
+            showToast(
+                "Please sign in to save opportunities!", 
+                `<a href="login.html">Sign In</a>`
+            );
             return;
         }
 
@@ -953,23 +970,23 @@ document.addEventListener('click', async function(e) {
 
         try {
             if (isCurrentlyStarred) {
-                // Remove from local array, update UI, and push removal to Firestore
                 userStarredIds = userStarredIds.filter(savedId => savedId !== id);
                 starBtn.textContent = '☆';
                 starBtn.setAttribute("aria-label", "Save opportunity");
                 starBtn.title = "Save opportunity";
                 await updateDoc(userRef, { starredOpportunities: arrayRemove(id) });
+                showToast("Removed from your saved opportunities.");
             } else {
-                // Add to local array, update UI, and push addition to Firestore
                 userStarredIds.push(id);
                 starBtn.textContent = '⭐';
                 starBtn.setAttribute("aria-label", "Remove from saved opportunities");
                 starBtn.title = "Remove saved opportunity";
                 await updateDoc(userRef, { starredOpportunities: arrayUnion(id) });
+                showToast("Saved to your opportunities! ⭐");
             }
         } catch (error) {
             console.error("Error updating saved opportunities:", error);
-            alert("Something went wrong saving this. Please try again.");
+            showToast("Something went wrong. Please try again.");
         }
     }
 });
@@ -978,12 +995,11 @@ document.addEventListener('click', async function(e) {
 // RENDERING & FILTERING LOGIC
 // ==========================================
 function renderOpportunities(dataToRender) {
-    const visibleData = hasFullAccess ? dataToRender : dataToRender.slice(0, 3);
-    if (oppCountDisplay) oppCountDisplay.textContent = visibleData.length;
+    if (oppCountDisplay) oppCountDisplay.textContent = dataToRender.length;
     if (listingsGrid) listingsGrid.innerHTML = '';
     markerGroup.clearLayers();
 
-    visibleData.forEach(opp => {
+    dataToRender.forEach(opp => {
         // Render Map Marker for Opportunity
         const marker = L.marker(opp.coords);
 
@@ -1021,7 +1037,6 @@ function renderOpportunities(dataToRender) {
             const tasksPreviewHTML = opp.responsibilities.slice(0,3).map(task => `<li>${task}</li>`).join('');
             const dynamicBgStyle = opp.imageSrc ? `background-image: url('${opp.imageSrc}');` : '';
             
-            // Check if this opportunity is in the user's saved array
             const starIcon = userStarredIds.includes(opp.id) ? '⭐' : '☆';
 
             const cardHTML = `
@@ -1059,23 +1074,6 @@ function renderOpportunities(dataToRender) {
             listingsGrid.insertAdjacentHTML("beforeend", cardHTML);
         }
     });
-
-    if (!hasFullAccess && dataToRender.length > 3) {
-        const hiddenCount = dataToRender.length - 3;
-        const promptTitle = isLoggedIn ? "Verify Your Email to Unlock" : "Unlock";
-        const promptMessage = isLoggedIn 
-            ? "Please check your inbox and verify your email to view the remaining volunteer events, distances, and applications." 
-            : "Create a free account and verify your email to view the remaining volunteer events and their map locations.";
-
-        const loginPromptHTML = `
-            <div class="login-prompt-card" style="text-align: center; padding: 30px 20px; background: #f8fafc; border-radius: 15px; border: 2px dashed #cbd5e1; margin-top: 10px;">
-                <h3 style="color: #0f172a; margin-bottom: 8px; font-size: 1.2rem;">🔒 ${promptTitle} ${hiddenCount} More Opportunities</h3>
-                <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 20px; line-height: 1.5;">${promptMessage}</p>
-                ${!isLoggedIn ? `<a href="login.html" class="btn-card" style="background: var(--forest); color: white; padding: 10px 24px; text-decoration: none;">Sign In to View All</a>` : ''}
-            </div>
-        `;
-        listingsGrid.insertAdjacentHTML("beforeend", loginPromptHTML);
-    }
 }
 
 function applyFilters() {

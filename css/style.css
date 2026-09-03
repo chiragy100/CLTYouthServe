@@ -159,8 +159,47 @@ h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
     box-shadow: 0 4px 12px rgba(27, 67, 50, 0.2);
 }
 
+/* Toast Notification Styles */
+#toast-container {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.custom-toast {
+    background: #0f172a;
+    color: #ffffff;
+    padding: 14px 20px;
+    border-radius: 10px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -4px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.custom-toast.show {
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.custom-toast a {
+    color: #38bdf8;
+    text-decoration: underline;
+    font-weight: 600;
+}
+
 
 @keyframes fadeInOnly {
     from { opacity: 0; }
     to { opacity: 1; }
 }
+
